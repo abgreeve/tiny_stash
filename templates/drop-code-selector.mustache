@@ -17,7 +17,9 @@
     <form>
         <h4>Items</h4>
         <select>
-            <option></option>
+          {{#items}}
+            <option>{{name}} ({{location}})</option>
+          {{/items}}
         </select>
         <!-- Show selected thing -->
         <!-- Provide options related to this thing -->
@@ -27,7 +29,9 @@
     <form>
         <h4>Trades</h4>
         <select>
-            <option></option>
+          {{#trades}}
+            <option>{{name}}</option>
+          {{/trades}}
         </select>
         <!-- Show selected thing -->
         <!-- Provide options related to this thing -->

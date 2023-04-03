@@ -24,6 +24,8 @@
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
+import Ajax from 'core/ajax';
+import {getContextId} from 'editor_tiny/options';
 
 /**
  * Handle action
@@ -39,8 +41,9 @@ export const handleAction = (editor) => {
  * @returns {Promise<void>}
  */
 const displayDialogue = async(editor) => {
-    let data = {};
-
+    let contextid = getContextId(editor);
+    let data = await getAllDropData(contextid);
+    window.console.log(data);
 
     const modalPromises = await ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
@@ -69,4 +72,9 @@ const displayDialogue = async(editor) => {
 
 
 };
+
+const getAllDropData = (contextid) => Ajax.call([{
+    methodname: 'block_stash_get_all_drops',
+    args: {contextid: contextid}
+}])[0];
 
