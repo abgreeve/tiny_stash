@@ -1,4 +1,4 @@
-<h3>Select a thing</h3>
+<h3>{{#str}}dropselect, tiny_stash{{/str}}</h3>
 
 <!-- TODO add a button to create a new item or trade -->
 <!-- Add a tab for items and one for trades -->
@@ -6,16 +6,16 @@
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Items</a>
+    <a class="nav-link active" id="item-tab" data-toggle="tab" data-tiny-stash href="#item" role="tab" aria-controls="items" aria-selected="true">{{#str}}items, tiny_stash{{/str}}</a>
   </li>
   <li class="nav-item" role="presentation">
-    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Trades</a>
+    <a class="nav-link" id="trade-tab" data-toggle="tab" data-tiny-stash href="#trade" role="tab" aria-controls="trades" aria-selected="false">{{#str}}trades, tiny_stash{{/str}}</a>
   </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+  <div class="tab-pane fade show active" id="item" role="tabpanel" aria-labelledby="item-tab">
     <form>
-        <h4>Items</h4>
+        <h4>{{#str}}items, tiny_stash{{/str}}</h4>
         <select class="tiny-stash-item-select">
           {{#items}}
             <option data-hash="{{hashcode}}" data-type="item">{{name}} ({{location}})</option>
@@ -27,14 +27,16 @@
         <!-- Provide options related to this thing -->
     </form>
   </div>
-  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+  <div class="tab-pane fade" id="trade" role="tabpanel" aria-labelledby="trade-tab">
     <form>
-        <h4>Trades</h4>
+        <h4>{{#str}}trades, tiny_stash{{/str}}</h4>
         <select>
           {{#trades}}
-            <option>{{name}}</option>
+            <option data-hash="{{hashcode}}" data-type="trade">{{name}}</option>
           {{/trades}}
         </select>
+        <div class="tiny-stash-trade-code">
+        </div>
         <!-- Show selected thing -->
         <!-- Provide options related to this thing -->
     </form>

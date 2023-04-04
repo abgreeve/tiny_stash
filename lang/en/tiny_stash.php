@@ -22,7 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Tiny insert stash';
-$string['helplinktext'] = 'Add a stash code';
 $string['buttontitle'] = 'Insert stash item';
+$string['dropselect'] = 'Select an item or trade to insert a code';
+$string['helplinktext'] = 'Add a stash code';
+$string['items'] = 'Items';
+$string['pluginname'] = 'Tiny insert stash';
+$string['trades'] = 'Trades';
 

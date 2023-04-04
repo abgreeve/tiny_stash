@@ -57,7 +57,13 @@ const displayDialogue = async(editor) => {
     let savedata = {};
 
     $root.on(ModalEvents.hidden, () => {
-        let codearea = document.getElementsByClassName('tiny-stash-item-code');
+        let activetab = document.querySelector('[aria-selected="true"][data-tiny-stash]');
+        let codearea = '';
+        if (activetab.getAttribute('aria-controls') == 'items') {
+            codearea = document.getElementsByClassName('tiny-stash-item-code');
+        } else {
+            codearea = document.getElementsByClassName('tiny-stash-trade-code');
+        }
         savedata.codearea = codearea[0].innerText;
         modalPromises.destroy();
     });
@@ -69,11 +75,16 @@ const displayDialogue = async(editor) => {
     root.addEventListener('click', (event) => {
         let element = event.target;
         let elementtype = element.dataset.type;
-        let codearea = document.getElementsByClassName('tiny-stash-item-code');
         if (element.nodeName === "OPTION" && elementtype == 'item') {
+            let codearea = document.getElementsByClassName('tiny-stash-item-code');
             let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" image]";
             codearea[0].innerText = dropcode;
-            // window.console.log(codearea[0]);
+
+        }
+        if (element.nodeName === "OPTION" && elementtype == 'trade') {
+            let codearea = document.getElementsByClassName('tiny-stash-trade-code');
+            let dropcode = "[stashtrade secret=\"" + element.dataset.hash + "\"]";
+            codearea[0].innerText = dropcode;
 
         }
 
