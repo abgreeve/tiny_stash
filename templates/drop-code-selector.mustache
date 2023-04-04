@@ -16,11 +16,13 @@
   <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
     <form>
         <h4>Items</h4>
-        <select>
+        <select class="tiny-stash-item-select">
           {{#items}}
-            <option>{{name}} ({{location}})</option>
+            <option data-hash="{{hashcode}}" data-type="item">{{name}} ({{location}})</option>
           {{/items}}
         </select>
+        <div class="tiny-stash-item-code">
+        </div>
         <!-- Show selected thing -->
         <!-- Provide options related to this thing -->
     </form>

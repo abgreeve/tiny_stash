@@ -43,7 +43,6 @@ export const handleAction = (editor) => {
 const displayDialogue = async(editor) => {
     let contextid = getContextId(editor);
     let data = await getAllDropData(contextid);
-    window.console.log(data);
 
     const modalPromises = await ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
@@ -55,7 +54,11 @@ const displayDialogue = async(editor) => {
     const $root = await modalPromises.getRoot();
     const root = $root[0];
 
+    let savedata = {};
+
     $root.on(ModalEvents.hidden, () => {
+        let codearea = document.getElementsByClassName('tiny-stash-item-code');
+        savedata.codearea = codearea[0].innerText;
         modalPromises.destroy();
     });
 
@@ -64,13 +67,21 @@ const displayDialogue = async(editor) => {
     });
 
     root.addEventListener('click', (event) => {
-        let textthing = '[stashdrop secret="JhDLF7" text="Pick up!" image]';
-        editor.execCommand('mceInsertContent', false, textthing);
-        // window.console.log(editor);
-        window.console.log(event);
+        let element = event.target;
+        let elementtype = element.dataset.type;
+        let codearea = document.getElementsByClassName('tiny-stash-item-code');
+        if (element.nodeName === "OPTION" && elementtype == 'item') {
+            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" image]";
+            codearea[0].innerText = dropcode;
+            // window.console.log(codearea[0]);
+
+        }
+
+        if (element.nodeName === "BUTTON" && element.dataset.action == 'save') {
+            // Need to check with tab has focus.
+            editor.execCommand('mceInsertContent', false, savedata.codearea);
+        }
     });
-
-
 };
 
 const getAllDropData = (contextid) => Ajax.call([{
