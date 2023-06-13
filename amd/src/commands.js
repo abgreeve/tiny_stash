@@ -29,6 +29,7 @@ import {
     buttonName,
     icon,
 } from './common';
+import {register, canManage} from './options';
 
 export const getSetup = async() => {
     const [
@@ -40,12 +41,17 @@ export const getSetup = async() => {
     ]);
 
     return (editor) => {
+        register(editor);
+        // Check permissions.
+        if (!canManage(editor)) {
+            return;
+        }
 
-        // Register the H5P Icon.
+        // Register the Stash Icon.
         editor.ui.registry.addIcon(icon, buttonImage.html);
 
         // Register the Menu Button as a toggle.
-        // This means that when highlighted over an existing H5P element it will show as toggled on.
+        // This means that when highlighted over an existing Stash element it will show as toggled on.
         editor.ui.registry.addToggleButton(buttonName, {
             icon,
             tooltip: buttonText,
@@ -57,7 +63,7 @@ export const getSetup = async() => {
             },
         });
 
-        // Add the H5P Menu Item.
+        // Add the Stash Menu Item.
         // This allows it to be added to a standard menu, or a context menu.
         editor.ui.registry.addMenuItem(buttonName, {
             icon,

@@ -53,15 +53,28 @@ class plugininfo extends plugin implements
 
     public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
             ?\editor_tiny\editor $editor = null): array {
+        global $USER;
 
-        $permissions = [
-            'embed' => true,
-            'upload' => true,
-        ];
-        $permissions['uploadandembed'] = $permissions['embed'] && $permissions['upload'];
+        // Get the course context to get the stash manager.
+        while ($context->contextlevel != CONTEXT_COURSE) {
+            if ($context->contextlevel == CONTEXT_SYSTEM) {
+                break;
+            }
+            $context = $context->get_parent_context();
+        }
+
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $permissions = false;
+            $courseid = 0;
+        } else {
+            $manager = \block_stash\manager::get($context->instanceid);
+            $permissions = $manager->can_manage($USER->id);
+            $courseid = $manager->get_courseid();
+        }
 
         return [
-            'permissions' => $permissions,
+            'canmanage' => $permissions,
+            'courseid' => $courseid,
             'storeinrepo' => true,
         ];
     }

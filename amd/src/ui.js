@@ -26,6 +26,9 @@ import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Ajax from 'core/ajax';
 import {getContextId} from 'editor_tiny/options';
+import {getCourseId} from 'tiny_stash/options';
+
+let itemsData = {};
 
 /**
  * Handle action
@@ -43,6 +46,11 @@ export const handleAction = (editor) => {
 const displayDialogue = async(editor) => {
     let contextid = getContextId(editor);
     let data = await getAllDropData(contextid);
+    let courseid = getCourseId(editor);
+    let itemdata = await getAllItemData(courseid);
+    itemdata.items.forEach((item) => {
+        itemsData[item.id] = item;
+    });
 
     const modalPromises = await ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
@@ -78,14 +86,14 @@ const displayDialogue = async(editor) => {
         if (element.nodeName === "OPTION" && elementtype == 'item') {
             let codearea = document.getElementsByClassName('tiny-stash-item-code');
             let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" image]";
+            let itemid = element.dataset.id;
+            updatePreview(itemid);
             codearea[0].innerText = dropcode;
-
         }
         if (element.nodeName === "OPTION" && elementtype == 'trade') {
             let codearea = document.getElementsByClassName('tiny-stash-trade-code');
             let dropcode = "[stashtrade secret=\"" + element.dataset.hash + "\"]";
             codearea[0].innerText = dropcode;
-
         }
 
         if (element.nodeName === "BUTTON" && element.dataset.action == 'save') {
@@ -95,8 +103,25 @@ const displayDialogue = async(editor) => {
     });
 };
 
+const updatePreview = (itemid) => {
+    let previewnode = document.querySelector('.preview');
+    previewnode.children.forEach((child) => { previewnode.removeChild(child); });
+
+    let wrappingdiv = document.createElement('div');
+    wrappingdiv.classList.add('block-stash-item');
+    let imagediv = document.createElement('div');
+    imagediv.classList.add('item-image');
+    imagediv.style.backgroundImage = 'url(' + itemsData[itemid].imageurl + ')';
+    wrappingdiv.appendChild(imagediv);
+    previewnode.appendChild(wrappingdiv);
+};
+
 const getAllDropData = (contextid) => Ajax.call([{
     methodname: 'block_stash_get_all_drops',
     args: {contextid: contextid}
 }])[0];
 
+const getAllItemData = (courseid) => Ajax.call([{
+    methodname: 'block_stash_get_items',
+    args: {courseid: courseid}
+}])[0];

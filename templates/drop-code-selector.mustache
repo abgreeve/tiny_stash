@@ -16,11 +16,12 @@
   <div class="tab-pane fade show active" id="item" role="tabpanel" aria-labelledby="item-tab">
     <form>
         <h4>{{#str}}items, tiny_stash{{/str}}</h4>
-        <select class="tiny-stash-item-select">
+        <select class="tiny-stash-item-select form-control">
           {{#items}}
-            <option data-hash="{{hashcode}}" data-type="item">{{name}} ({{location}})</option>
+            <option data-hash="{{hashcode}}" data-type="item" data-id="{{itemid}}">{{name}} ({{location}})</option>
           {{/items}}
         </select>
+        {{> tiny_stash/item-drop-snippet}}
         <div class="tiny-stash-item-code">
         </div>
         <!-- Show selected thing -->
@@ -32,7 +33,7 @@
         <h4>{{#str}}trades, tiny_stash{{/str}}</h4>
         <select>
           {{#trades}}
-            <option data-hash="{{hashcode}}" data-type="trade">{{name}}</option>
+            <option data-hash="{{hashcode}}" data-type="trade" data-id="{{id}}">{{name}}</option>
           {{/trades}}
         </select>
         <div class="tiny-stash-trade-code">
