@@ -27,6 +27,8 @@ import Templates from 'core/templates';
 import Ajax from 'core/ajax';
 import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
+import $ from 'jquery';
+import * as DropAdd from 'tiny_stash/drop-add';
 
 let itemsData = {};
 
@@ -52,7 +54,10 @@ const displayDialogue = async(editor) => {
         itemsData[item.id] = item;
     });
 
+    window.console.log(data);
+
     const modalPromises = await ModalFactory.create({
+        title: "Stash stuff here",
         type: ModalFactory.types.SAVE_CANCEL,
         body: Templates.render('tiny_stash/drop-code-selector', data),
         large: true,
@@ -65,6 +70,21 @@ const displayDialogue = async(editor) => {
     let savedata = {};
 
     $root.on(ModalEvents.hidden, () => {
+        modalPromises.destroy();
+    });
+
+    $root.on(ModalEvents.bodyRendered, () => {
+        let temp = document.getElementsByClassName('tiny-stash-add-drop');
+        temp[0].addEventListener('click', (e) => {
+            e.preventDefault();
+            $('.carousel').carousel('next');
+            $('.carousel').carousel('pause');
+            // init drop add page.
+            DropAdd.init(itemsData, editor);
+        });
+    });
+
+    $root.on(ModalEvents.save, () => {
         let activetab = document.querySelector('[aria-selected="true"][data-tiny-stash]');
         let codearea = '';
         if (activetab.getAttribute('aria-controls') == 'items') {
@@ -73,20 +93,19 @@ const displayDialogue = async(editor) => {
             codearea = document.getElementsByClassName('tiny-stash-trade-code');
         }
         savedata.codearea = codearea[0].innerText;
-        modalPromises.destroy();
-    });
-
-    $root.on(ModalEvents.shown, () => {
-
+        editor.execCommand('mceInsertContent', false, savedata.codearea);
     });
 
     root.addEventListener('click', (event) => {
         let element = event.target;
         let elementtype = element.dataset.type;
+        // window.console.log(element.nodeName);
+        // window.console.log(element.classList);
         if (element.nodeName === "OPTION" && elementtype == 'item') {
-            let codearea = document.getElementsByClassName('tiny-stash-item-code');
-            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" image]";
             let itemid = element.dataset.id;
+            let codearea = document.getElementsByClassName('tiny-stash-item-code');
+            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" name=\"" +
+                    itemsData[itemid].name + "\" image]";
             updatePreview(itemid);
             codearea[0].innerText = dropcode;
         }
@@ -95,13 +114,23 @@ const displayDialogue = async(editor) => {
             let dropcode = "[stashtrade secret=\"" + element.dataset.hash + "\"]";
             codearea[0].innerText = dropcode;
         }
-
-        if (element.nodeName === "BUTTON" && element.dataset.action == 'save') {
-            // Need to check with tab has focus.
-            editor.execCommand('mceInsertContent', false, savedata.codearea);
-        }
     });
 };
+
+// const removeChildren = (node) => {
+//     while (node.firstChild) {
+//         node.removeChild(node.lastChild);
+//     }
+// };
+
+// const addFooterListeners = () => {
+//     let backbutton = document.querySelector('button[data-action="back"]');
+//     backbutton.addEventListener('click', (e) => {
+//         e.preventDefault();
+//         $('.carousel').carousel('prev');
+//         $('.carousel').carousel('pause');
+//     });
+// };
 
 const updatePreview = (itemid) => {
     let previewnode = document.querySelector('.preview');
