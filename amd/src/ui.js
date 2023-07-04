@@ -53,8 +53,7 @@ const displayDialogue = async(editor) => {
     itemdata.items.forEach((item) => {
         itemsData[item.id] = item;
     });
-
-    window.console.log(data);
+    // window.console.log(data);
 
     const modalPromises = await ModalFactory.create({
         title: "Stash stuff here",
@@ -81,6 +80,15 @@ const displayDialogue = async(editor) => {
             $('.carousel').carousel('pause');
             // init drop add page.
             DropAdd.init(itemsData, editor);
+        });
+
+        $('.carousel').on('slide.bs.carousel', (e) => {
+            window.console.log(e);
+            window.console.log(DropAdd.Status);
+            if (DropAdd.Status == 'Saved') {
+                // Reload the drop list.
+                DropAdd.Status = 'Clear';
+            }
         });
     });
 

@@ -22,23 +22,21 @@
 
 import $ from 'jquery';
 import Templates from 'core/templates';
-import {getContextId} from 'editor_tiny/options';
+import Ajax from 'core/ajax';
+import {getCourseId} from 'tiny_stash/options';
 
 let ItemsData = {};
 let Editor = {};
+export let Status = 'Clear';
 
 export const init = (itemsData, editor) => {
     ItemsData = itemsData;
     Editor = editor;
-    let contextid = getContextId(Editor);
-    window.console.log(contextid);
     let areanode = document.querySelector('.tiny-stash-next-slide');
     // format items for export to the template.
     let data = {items: []};
-    for (let [index, item] of Object.entries(ItemsData)) {
-        window.console.log(index);
-        // window.console.log(item);
-        data.items.push({id: item.id, name: item.name});
+    for (let item of Object.entries(ItemsData)) {
+        data.items.push({id: item[1].id, name: item[1].name});
     }
 
     if (areanode) {
@@ -62,7 +60,7 @@ const removeChildren = (node) => {
     }
 };
 
-const saveLocation = () => {
+const saveLocation = (e) => {
     let itemnode = document.querySelector('.stash-item');
     let itemvalue = itemnode.options[itemnode.selectedIndex].value;
     let locationnode = document.querySelector('.location-name').value;
@@ -71,6 +69,9 @@ const saveLocation = () => {
     let intervalnumber = document.querySelector('.intervalnumber').value;
     let pickupintervalnode = document.querySelector('.pickupinterval');
     let pickupinterval = pickupintervalnode.options[pickupintervalnode.selectedIndex].value;
+    if (suppliesunlimitednode) {
+        suppliesnode = 0;
+    }
     let data = {
         itemid: itemvalue,
         location: locationnode,
@@ -79,29 +80,47 @@ const saveLocation = () => {
         intervalnumber: intervalnumber,
         pickupinterval: pickupinterval
     };
-    window.console.log(data);
+    let courseid = getCourseId(Editor);
+    createDrop(courseid, data);
+    Status = 'Saved';
+    shiftBack(e);
+    // window.console.log(data);
 };
 
 const addFooterListeners = () => {
     let backbutton = document.querySelector('button[data-action="back"]');
     backbutton.addEventListener('click', (e) => {
-        e.preventDefault();
-        $('.carousel').carousel('prev');
-        $('.carousel').carousel('pause');
-        // Clear this page.
-        let areanode = document.querySelector('.tiny-stash-next-slide');
-        removeChildren(areanode);
-        // Replace footer.
-        Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
-            let modalfooter = document.querySelector('.modal-footer');
-            // Remove existing buttons.
-            removeChildren(modalfooter);
-            Templates.appendNodeContents(modalfooter, html, js);
-        });
+        shiftBack(e);
     });
     let addbutton = document.querySelector('button[data-action="add"]');
-    addbutton.addEventListener('click', () => {
-        window.console.log('Save this drop!');
-        saveLocation();
+    addbutton.addEventListener('click', (e) => {
+        saveLocation(e);
     });
 };
+
+const shiftBack = (e) => {
+    e.preventDefault();
+    $('.carousel').carousel('prev');
+    $('.carousel').carousel('pause');
+    // Clear this page.
+    let areanode = document.querySelector('.tiny-stash-next-slide');
+    removeChildren(areanode);
+    // Replace footer.
+    Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
+        let modalfooter = document.querySelector('.modal-footer');
+        // Remove existing buttons.
+        removeChildren(modalfooter);
+        Templates.appendNodeContents(modalfooter, html, js);
+    });
+};
+
+const createDrop = (courseid, dropdata) => Ajax.call([{
+    methodname: 'block_stash_add_drop',
+    args: {
+        courseid: courseid,
+        itemid: dropdata.itemid,
+        name: dropdata.location,
+        maxpickup: dropdata.supplies,
+        pickupinterval: dropdata.pickupinterval
+    }
+}])[0];
