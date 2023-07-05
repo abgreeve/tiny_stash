@@ -78,6 +78,7 @@ const displayDialogue = async(editor) => {
 
         // Add a listener for the appearance select box.
         addAppearanceListener();
+        addTextAndImageListener();
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.Status == 'Saved') {
@@ -111,7 +112,8 @@ const displayDialogue = async(editor) => {
         if (element.nodeName === "OPTION" && elementtype == 'item') {
             let itemid = element.dataset.id;
             let codearea = document.getElementsByClassName('tiny-stash-item-code');
-            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"Pick up!\" name=\"" +
+            let buttontext = document.querySelector('input[name="actiontext"]').value;
+            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"" + buttontext + "\" name=\"" +
                     itemsData[itemid].name + "\" image]";
             updatePreview(itemid);
             codearea[0].innerText = dropcode;
@@ -138,8 +140,37 @@ const addAddDropListener = (editor) => {
 const addAppearanceListener = () => {
     let selectnode = document.querySelector('.tiny-stash-appearance');
     selectnode.addEventListener('change', (e) => {
-        window.console.log('This changed');
-        window.console.log(e);
+        let selectedelement = e.target.selectedOptions[0];
+        if (selectedelement.value == 'text') {
+            document.querySelector('.snippet-label').classList.remove('d-none');
+            document.querySelector('.snippet-actiontext').classList.add('d-none');
+        }
+        if (selectedelement.value == 'image') {
+            document.querySelector('.snippet-label').classList.add('d-none');
+            document.querySelector('.snippet-actiontext').classList.add('d-none');
+        }
+        if (selectedelement.value == 'imageandbutton') {
+            document.querySelector('.snippet-label').classList.add('d-none');
+            document.querySelector('.snippet-actiontext').classList.remove('d-none');
+        }
+
+    });
+};
+
+const addTextAndImageListener = () => {
+    let textnode = document.querySelector('input[name="actiontext"]');
+    textnode.addEventListener('keyup', (e) => {
+        // if no preview exit early.
+        if (!document.querySelector('.block-stash-item')) {
+            return;
+        }
+        let buttontext = e.currentTarget.value;
+        let previewbutton = document.querySelector('.tiny-stash-button-preview');
+        previewbutton.innerText = buttontext;
+        // Update the snippet text.
+        let codearea = document.getElementsByClassName('tiny-stash-item-code');
+        let codetext = codearea[0].innerHTML;
+        window.console.log(codetext);
     });
 };
 
@@ -157,7 +188,17 @@ const updatePreview = (itemid) => {
     let imagediv = document.createElement('div');
     imagediv.classList.add('item-image');
     imagediv.style.backgroundImage = 'url(' + itemsData[itemid].imageurl + ')';
+    let buttondiv = document.createElement('div');
+    buttondiv.classList.add('item-action');
+    let button = document.createElement('button');
+    button.classList.add('btn');
+    button.classList.add('btn-secondary');
+    button.classList.add('tiny-stash-button-preview');
+    let temp = document.querySelector('input[name="actiontext"]');
+    button.innerHTML = temp.value;
+    buttondiv.appendChild(button);
     wrappingdiv.appendChild(imagediv);
+    wrappingdiv.appendChild(buttondiv);
     previewnode.appendChild(wrappingdiv);
 };
 
