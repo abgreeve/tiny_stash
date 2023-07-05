@@ -17,15 +17,8 @@
         <div class="tab-pane fade show active" id="item" role="tabpanel" aria-labelledby="item-tab">
           <form>
               <h4>{{#str}}items, tiny_stash{{/str}}</h4>
-              <div class="input-group">
-                <select class="tiny-stash-item-select form-control">
-                  {{#items}}
-                    <option data-hash="{{hashcode}}" data-type="item" data-id="{{itemid}}">{{name}} ({{location}})</option>
-                  {{/items}}
-                </select>
-                <div class="input-group-append">
-                  <a href="#" class="btn btn-primary tiny-stash-add-drop">Add a location</a>
-                </div>
+              <div class="input-group tiny-stash-drop-select">
+                {{> tiny_stash/drop-select}}
               </div>
               {{> tiny_stash/item-drop-snippet}}
               <div class="tiny-stash-item-code">

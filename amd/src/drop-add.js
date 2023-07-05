@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * description
+ * The internal workings of the add location dialogue.
  *
  * @copyright  2023 Adrian Greeve <adriangreeve.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,6 +29,12 @@ let ItemsData = {};
 let Editor = {};
 export let Status = 'Clear';
 
+/**
+ * Initialisation function for the drop add modal.
+ *
+ * @param {object} itemsData - The data for the items.
+ * @param {TinyMCE} editor - The editor object.
+ */
 export const init = (itemsData, editor) => {
     ItemsData = itemsData;
     Editor = editor;
@@ -54,12 +60,22 @@ export const init = (itemsData, editor) => {
     });
 };
 
-const removeChildren = (node) => {
+/**
+ * Remove all the children from a node.
+ *
+ * @param {node} node - The node to remove the children from.
+ */
+export const removeChildren = (node) => {
     while (node.firstChild) {
         node.removeChild(node.lastChild);
     }
 };
 
+/**
+ * Save the drop.
+ *
+ * @param {event} e - The related event.
+ */
 const saveLocation = (e) => {
     let itemnode = document.querySelector('.stash-item');
     let itemvalue = itemnode.options[itemnode.selectedIndex].value;
@@ -81,12 +97,15 @@ const saveLocation = (e) => {
         pickupinterval: pickupinterval
     };
     let courseid = getCourseId(Editor);
-    createDrop(courseid, data);
-    Status = 'Saved';
-    shiftBack(e);
-    // window.console.log(data);
+    createDrop(courseid, data).then(() => {
+        Status = 'Saved';
+        shiftBack(e);
+    });
 };
 
+/**
+ * Add listeners to the footer buttons.
+ */
 const addFooterListeners = () => {
     let backbutton = document.querySelector('button[data-action="back"]');
     backbutton.addEventListener('click', (e) => {
@@ -98,6 +117,11 @@ const addFooterListeners = () => {
     });
 };
 
+/**
+ * Shift the carousel back.
+ *
+ * @param {event} e - The related event.
+ */
 const shiftBack = (e) => {
     e.preventDefault();
     $('.carousel').carousel('prev');
@@ -114,6 +138,12 @@ const shiftBack = (e) => {
     });
 };
 
+/**
+ * Create the drop.
+ *
+ * @param {number} courseid - The course id.
+ * @param {object} dropdata - The data for the drop.
+ */
 const createDrop = (courseid, dropdata) => Ajax.call([{
     methodname: 'block_stash_add_drop',
     args: {

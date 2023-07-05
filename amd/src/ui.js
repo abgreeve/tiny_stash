@@ -41,7 +41,8 @@ export const handleAction = (editor) => {
 };
 
 /**
- * Display the equation editor
+ * Display the drop dialogue.
+ *
  * @param {TinyMCE} editor
  * @returns {Promise<void>}
  */
@@ -73,20 +74,20 @@ const displayDialogue = async(editor) => {
     });
 
     $root.on(ModalEvents.bodyRendered, () => {
-        let temp = document.getElementsByClassName('tiny-stash-add-drop');
-        temp[0].addEventListener('click', (e) => {
-            e.preventDefault();
-            $('.carousel').carousel('next');
-            $('.carousel').carousel('pause');
-            // init drop add page.
-            DropAdd.init(itemsData, editor);
-        });
+        addAddDropListener(editor);
 
-        $('.carousel').on('slide.bs.carousel', (e) => {
-            window.console.log(e);
-            window.console.log(DropAdd.Status);
+        // Add a listener for the appearance select box.
+        addAppearanceListener();
+
+        $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.Status == 'Saved') {
                 // Reload the drop list.
+                data = await getAllDropData(contextid);
+                Templates.render('tiny_stash/drop-select', data).then((html, js) => {
+                    let selectnode = document.querySelector('.tiny-stash-drop-select');
+                    Templates.replaceNodeContents(selectnode, html, js);
+                    addAddDropListener(editor);
+                });
                 DropAdd.Status = 'Clear';
             }
         });
@@ -107,8 +108,6 @@ const displayDialogue = async(editor) => {
     root.addEventListener('click', (event) => {
         let element = event.target;
         let elementtype = element.dataset.type;
-        // window.console.log(element.nodeName);
-        // window.console.log(element.classList);
         if (element.nodeName === "OPTION" && elementtype == 'item') {
             let itemid = element.dataset.id;
             let codearea = document.getElementsByClassName('tiny-stash-item-code');
@@ -125,21 +124,30 @@ const displayDialogue = async(editor) => {
     });
 };
 
-// const removeChildren = (node) => {
-//     while (node.firstChild) {
-//         node.removeChild(node.lastChild);
-//     }
-// };
+const addAddDropListener = (editor) => {
+    let temp = document.getElementsByClassName('tiny-stash-add-drop');
+    temp[0].addEventListener('click', (e) => {
+        e.preventDefault();
+        $('.carousel').carousel('next');
+        $('.carousel').carousel('pause');
+        // init drop add page.
+        DropAdd.init(itemsData, editor);
+    });
+};
 
-// const addFooterListeners = () => {
-//     let backbutton = document.querySelector('button[data-action="back"]');
-//     backbutton.addEventListener('click', (e) => {
-//         e.preventDefault();
-//         $('.carousel').carousel('prev');
-//         $('.carousel').carousel('pause');
-//     });
-// };
+const addAppearanceListener = () => {
+    let selectnode = document.querySelector('.tiny-stash-appearance');
+    selectnode.addEventListener('change', (e) => {
+        window.console.log('This changed');
+        window.console.log(e);
+    });
+};
 
+/**
+ * Update the preview image.
+ *
+ * @param {int} itemid
+ */
 const updatePreview = (itemid) => {
     let previewnode = document.querySelector('.preview');
     previewnode.children.forEach((child) => { previewnode.removeChild(child); });
@@ -153,11 +161,23 @@ const updatePreview = (itemid) => {
     previewnode.appendChild(wrappingdiv);
 };
 
+/**
+ * Get all drop data.
+ *
+ * @param {int} contextid - The context id.
+ * @returns {Promise<void>}
+ */
 const getAllDropData = (contextid) => Ajax.call([{
     methodname: 'block_stash_get_all_drops',
     args: {contextid: contextid}
 }])[0];
 
+/**
+ * Get all item data.
+ *
+ * @param {int} courseid - The course id.
+ * @returns {Promise<void>}
+ */
 const getAllItemData = (courseid) => Ajax.call([{
     methodname: 'block_stash_get_items',
     args: {courseid: courseid}
