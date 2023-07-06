@@ -29,6 +29,7 @@ import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
 import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
+import * as AddItem from 'tiny_stash/additem';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 
 let itemsData = {};
@@ -81,6 +82,14 @@ const displayDialogue = async(editor) => {
         // Add a listener for the appearance select box.
         addAppearanceListener();
         addTextAndImageListener();
+
+        let additembutton = document.querySelector('.tiny-stash-add-item');
+        additembutton.addEventListener('click', (e) => {
+            e.preventDefault();
+            $('.carousel').carousel('next');
+            $('.carousel').carousel('pause');
+            AddItem.init(courseid, contextid);
+        });
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.Status == 'Saved') {
