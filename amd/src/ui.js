@@ -29,8 +29,10 @@ import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
 import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
+import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 
 let itemsData = {};
+let Snippet = {};
 
 /**
  * Handle action
@@ -113,10 +115,10 @@ const displayDialogue = async(editor) => {
             let itemid = element.dataset.id;
             let codearea = document.getElementsByClassName('tiny-stash-item-code');
             let buttontext = document.querySelector('input[name="actiontext"]').value;
-            let dropcode = "[stashdrop secret=\"" + element.dataset.hash + "\" text=\"" + buttontext + "\" name=\"" +
-                    itemsData[itemid].name + "\" image]";
+            Snippet = new SnippetMaker(element.dataset.hash, itemsData[itemid].name);
+            Snippet.setText(buttontext);
             updatePreview(itemid);
-            codearea[0].innerText = dropcode;
+            codearea[0].innerText = Snippet.getImageAndText();
         }
         if (element.nodeName === "OPTION" && elementtype == 'trade') {
             let codearea = document.getElementsByClassName('tiny-stash-trade-code');
@@ -159,6 +161,7 @@ const addAppearanceListener = () => {
 
 const addTextAndImageListener = () => {
     let textnode = document.querySelector('input[name="actiontext"]');
+
     textnode.addEventListener('keyup', (e) => {
         // if no preview exit early.
         if (!document.querySelector('.block-stash-item')) {
@@ -169,8 +172,8 @@ const addTextAndImageListener = () => {
         previewbutton.innerText = buttontext;
         // Update the snippet text.
         let codearea = document.getElementsByClassName('tiny-stash-item-code');
-        let codetext = codearea[0].innerHTML;
-        window.console.log(codetext);
+        Snippet.setText(buttontext);
+        codearea[0].innerText = Snippet.getImageAndText();
     });
 };
 
