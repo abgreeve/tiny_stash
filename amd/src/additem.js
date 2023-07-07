@@ -24,6 +24,7 @@ import Fragment from 'core/fragment';
 import Templates from 'core/templates';
 import $ from 'jquery';
 import Ajax from 'core/ajax';
+import * as Toast from 'core/toast';
 
 let CourseId = 0;
 export let Status = 'Clear';
@@ -100,16 +101,42 @@ const saveItem = (event) => {
         itemimage: formdata.querySelector('#id_image').value,
         description: formdata.querySelector('#id_detail_text').value,
     };
-    if (validateForm(submitdata)) {
-        createItem(submitdata).then(() => {
-            Status = 'Saved';
-            shiftBack(event);
-        });
-    }
+    validateForm(submitdata).then((result) => {
+        if (result) {
+            createItem(submitdata).then(() => {
+                Status = 'Saved';
+                shiftBack(event);
+            });
+        }
+    });
 };
 
-const validateForm = (formdata) => {
+const validateForm = async (formdata) => {
     window.console.log(formdata);
+    await Toast.addToastRegion(document.querySelector('.tiny-stash-next-slide'));
+    if (!formdata.itemname) {
+        Toast.add('Please add a name for the item', {
+            type: 'warning',
+            autohide: true,
+            closeButton: true,
+        });
+        // Focus on the element.
+        document.querySelector('#id_name').focus();
+        return false;
+    }
+    let hoboy = document.querySelector('.tiny-stash-next-slide form');
+    let yeppo = hoboy.querySelector('.fp-content');
+    // window.console.log(yeppo.children.length);
+    if (yeppo.children.length < 1) {
+        Toast.add('Please add an image for the item', {
+            type: 'warning',
+            autohide: true,
+            closeButton: true,
+        });
+        // Focus on the element.
+        document.querySelector('#id_image').focus();
+        return false;
+    }
     return true;
 };
 
