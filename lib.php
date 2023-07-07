@@ -38,6 +38,7 @@ function tiny_stash_output_fragment_add_item_form($args) {
         'editoroptions' => $editoroptions,
         'persistent' => null,
         'stash' => $manager->get_stash(),
+        'modal' => true,
     ];
 
     // require_capability('enrol/manual:enrol', $context);

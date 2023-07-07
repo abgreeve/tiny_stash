@@ -102,6 +102,15 @@ const displayDialogue = async(editor) => {
                 });
                 DropAdd.Status = 'Clear';
             }
+            if (AddItem.Status == 'Saved') {
+                // Reload the drop list.
+                itemsData = {};
+                itemdata = await getAllItemData(courseid);
+                itemdata.items.forEach((item) => {
+                    itemsData[item.id] = item;
+                });
+                AddItem.Status = 'Clear';
+            }
         });
     });
 

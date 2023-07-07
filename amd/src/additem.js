@@ -22,11 +22,105 @@
 
 import Fragment from 'core/fragment';
 import Templates from 'core/templates';
+import $ from 'jquery';
+import Ajax from 'core/ajax';
+
+let CourseId = 0;
+export let Status = 'Clear';
 
 export const init = (courseid, contextid) => {
+    CourseId = courseid;
 
-    let dialoguebody = document.querySelector('.modal-body[data-region="body"]');
+    let areanode = document.querySelector('.tiny-stash-next-slide');
     Fragment.loadFragment('tiny_stash', 'add_item_form', contextid ,{courseid}).then((html, js) => {
-        Templates.appendNodeContents(dialoguebody, html, js);
+        Templates.appendNodeContents(areanode, html, js);
+    });
+
+    Templates.render('tiny_stash/local/footers/add-item-footer', {}).then((html, js) => {
+        let modalfooter = document.querySelector('.modal-footer');
+        // Remove existing buttons.
+        removeChildren(modalfooter);
+        Templates.appendNodeContents(modalfooter, html, js);
+        addFooterListeners();
     });
 };
+
+/**
+ * Remove all the children from a node.
+ *
+ * @param {node} node - The node to remove the children from.
+ */
+export const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.lastChild);
+    }
+};
+
+/**
+ * Add listeners to the footer buttons.
+ */
+const addFooterListeners = () => {
+    let backbutton = document.querySelector('button[data-action="back"]');
+    backbutton.addEventListener('click', (e) => {
+        shiftBack(e);
+    });
+    let addbutton = document.querySelector('button[data-action="add"]');
+    addbutton.addEventListener('click', (e) => {
+        saveItem(e);
+    });
+};
+
+/**
+ * Shift the carousel back.
+ *
+ * @param {event} e - The related event.
+ */
+const shiftBack = (e) => {
+    e.preventDefault();
+    $('.carousel').carousel('prev');
+    $('.carousel').carousel('pause');
+    // Clear this page.
+    let areanode = document.querySelector('.tiny-stash-next-slide');
+    removeChildren(areanode);
+    // Replace footer.
+    Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
+        let modalfooter = document.querySelector('.modal-footer');
+        // Remove existing buttons.
+        removeChildren(modalfooter);
+        Templates.appendNodeContents(modalfooter, html, js);
+    });
+};
+
+const saveItem = (event) => {
+    let formdata = document.querySelector('.tiny-stash-next-slide form');
+    let submitdata = {
+        itemname: formdata.querySelector('#id_name').value,
+        scarceitem: formdata.querySelector('#id_scarceitem').checked,
+        amountlimit: (formdata.querySelector('#id_amountlimit').value) ? formdata.querySelector('#id_amountlimit').value : 0,
+        itemimage: formdata.querySelector('#id_image').value,
+        description: formdata.querySelector('#id_detail_text').value,
+    };
+    if (validateForm(submitdata)) {
+        createItem(submitdata).then(() => {
+            Status = 'Saved';
+            shiftBack(event);
+        });
+    }
+};
+
+const validateForm = (formdata) => {
+    window.console.log(formdata);
+    return true;
+};
+
+const createItem = (itemdata) => Ajax.call([{
+    methodname: 'block_stash_add_item',
+    args: {
+        courseid: CourseId,
+        itemname: itemdata.itemname,
+        scarceitem: itemdata.scarceitem,
+        amountlimit: itemdata.amountlimit,
+        itemimage: itemdata.itemimage,
+        description: itemdata.description,
+    }
+}])[0];
