@@ -51,12 +51,14 @@ export const handleAction = (editor) => {
  */
 const displayDialogue = async(editor) => {
     let contextid = getContextId(editor);
-    let data = await getAllDropData(contextid);
+    let data = await getDropData(contextid);
     let courseid = getCourseId(editor);
-    let itemdata = await getAllItemData(courseid);
-    itemdata.items.forEach((item) => {
-        itemsData[item.id] = item;
-    });
+    let itemdata = await getItemData(courseid);
+    if (itemdata.items) {
+        itemdata.items.forEach((item) => {
+            itemsData[item.id] = item;
+        });
+    }
     // window.console.log(data);
 
     const modalPromises = await ModalFactory.create({
@@ -94,7 +96,7 @@ const displayDialogue = async(editor) => {
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.Status == 'Saved') {
                 // Reload the drop list.
-                data = await getAllDropData(contextid);
+                data = await getDropData(contextid);
                 Templates.render('tiny_stash/drop-select', data).then((html, js) => {
                     let selectnode = document.querySelector('.tiny-stash-drop-select');
                     Templates.replaceNodeContents(selectnode, html, js);
@@ -105,7 +107,7 @@ const displayDialogue = async(editor) => {
             if (AddItem.Status == 'Saved') {
                 // Reload the drop list.
                 itemsData = {};
-                itemdata = await getAllItemData(courseid);
+                itemdata = await getItemData(courseid);
                 itemdata.items.forEach((item) => {
                     itemsData[item.id] = item;
                 });
@@ -212,15 +214,32 @@ const updatePreview = (itemid) => {
     let buttondiv = document.createElement('div');
     buttondiv.classList.add('item-action');
     let button = document.createElement('button');
-    button.classList.add('btn');
-    button.classList.add('btn-secondary');
-    button.classList.add('tiny-stash-button-preview');
+    button.classList.add('btn', 'btn-secondary', 'tiny-stash-button-preview');
+    button.setAttribute('disabled', true);
     let temp = document.querySelector('input[name="actiontext"]');
     button.innerHTML = temp.value;
     buttondiv.appendChild(button);
     wrappingdiv.appendChild(imagediv);
     wrappingdiv.appendChild(buttondiv);
     previewnode.appendChild(wrappingdiv);
+};
+
+const getDropData = async (contextid) => {
+    try {
+        let temp = await getAllDropData(contextid);
+        return temp;
+    } catch (e) {
+        return {};
+    }
+};
+
+const getItemData = async (courseid) => {
+    try {
+        let temp = await getAllItemData(courseid);
+        return temp;
+    } catch (e) {
+        return {};
+    }
 };
 
 /**

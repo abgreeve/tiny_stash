@@ -16,7 +16,7 @@
         <div class="form-row align-items-center">
             <div class="col-auto my-1">
                 <label>Supplies</label>
-                <input type="number" class="form-control location-supplies" placeholder="1" value="1" />
+                <input type="number" class="form-control location-supplies" placeholder="1" value="1" min="1" />
             </div>
             <div class="col-auto my-1">
                 <div class="custom-control custom-checkbox mr-sm-2">
@@ -30,11 +30,11 @@
         <div class="form-row">
             <div class="col-auto my-1">
                 <label>Collection interval</label>
-                <input type="text" class="form-control intervalnumber" placeholder="1" value="1" size="3" />
+                <input type="text" class="form-control intervalnumber" placeholder="1" value="1" size="3" disabled />
             </div>
             <div class="col-auto my-1">
                 <label class="sr-only">Collection interval time</label>
-                <select class="form-control custom-select pickupinterval mr-sm-2">
+                <select class="form-control custom-select pickupinterval mr-sm-2" disabled>
                     <option value="604800">weeks</option>
                     <option value="86400">days</option>
                     <option value="3600" selected>hours</option>

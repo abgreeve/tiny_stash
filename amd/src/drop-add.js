@@ -53,11 +53,40 @@ export const init = (itemsData, editor) => {
 
     Templates.render('tiny_stash/local/footers/add-drop-footer', {}).then((html, js) => {
         let modalfooter = document.querySelector('.modal-footer');
+        addFormListeners();
         // Remove existing buttons.
         removeChildren(modalfooter);
         Templates.appendNodeContents(modalfooter, html, js);
         addFooterListeners();
     });
+};
+
+/**
+ * Add event listeners for the form.
+ */
+const addFormListeners = () => {
+    const suppliesnode = document.querySelector('.location-supplies');
+    const unlimitedflag = document.querySelector('#supplyunlimited');
+    const pickupinterval = document.querySelector('.pickupinterval');
+    const intervalnumber = document.querySelector('.intervalnumber');
+
+    const updateFields = () => {
+        if (suppliesnode.value > 1 || unlimitedflag.checked) {
+            pickupinterval.disabled = false;
+            intervalnumber.disabled = false;
+        } else {
+            pickupinterval.disabled = true;
+            intervalnumber.disabled = true;
+        }
+    };
+
+    const addListener = (node) => {
+        node.addEventListener('change', updateFields);
+        node.addEventListener('keyup', updateFields);
+    };
+
+    addListener(suppliesnode);
+    addListener(unlimitedflag);
 };
 
 /**
@@ -88,13 +117,13 @@ const saveLocation = (e) => {
     if (suppliesunlimitednode) {
         suppliesnode = 0;
     }
+    let realinterval = intervalnumber * pickupinterval;
     let data = {
         itemid: itemvalue,
         location: locationnode,
         supplies: suppliesnode,
         unlimited: suppliesunlimitednode,
-        intervalnumber: intervalnumber,
-        pickupinterval: pickupinterval
+        pickupinterval: realinterval
     };
     let courseid = getCourseId(Editor);
     createDrop(courseid, data).then(() => {
