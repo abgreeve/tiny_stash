@@ -1,12 +1,19 @@
 <form>
     <div class="form-group">
         <label>Item</label>
+        {{^oneonly}}
         <select class="form-control custom-select stash-item mr-sm-2">
             <option selected>Choose...</option>
             {{#items}}
             <option value="{{id}}">{{name}}</option>
             {{/items}}
         </select>
+        {{/oneonly}}
+        {{#oneonly}}
+            {{#items}}
+            <input type="text" class="form-control stash-item" data-id="{{id}}" value="{{name}}" readonly />
+            {{/items}}
+        {{/oneonly}}
     </div>
     <div class="form-group">
         <label>Location</label>

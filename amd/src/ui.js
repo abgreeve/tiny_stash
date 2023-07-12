@@ -24,13 +24,13 @@
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
-import Ajax from 'core/ajax';
 import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
 import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
 import * as AddItem from 'tiny_stash/additem';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
+import * as WebService from 'tiny_stash/webservice-calls';
 
 let itemsData = {};
 let Snippet = {};
@@ -90,16 +90,30 @@ const displayDialogue = async(editor) => {
             e.preventDefault();
             $('.carousel').carousel('next');
             $('.carousel').carousel('pause');
-            AddItem.init(courseid, contextid);
+            AddItem.init(editor);
         });
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.Status == 'Saved') {
+                // window.console.log(DropAdd.SavedIndex);
                 // Reload the drop list.
                 data = await getDropData(contextid);
                 Templates.render('tiny_stash/drop-select', data).then((html, js) => {
                     let selectnode = document.querySelector('.tiny-stash-drop-select');
                     Templates.replaceNodeContents(selectnode, html, js);
+                    let selectitemnode = document.querySelector('.tiny-stash-item-select');
+                    for (let i=0; i< selectitemnode.options.length; i++) {
+                        let option = selectitemnode.options[i];
+                        if (option.dataset.hash == DropAdd.SavedIndex) {
+                            option.selected = true;
+                            updatePreview(option.dataset.id);
+                            let codearea = document.getElementsByClassName('tiny-stash-item-code');
+                            let buttontext = document.querySelector('input[name="actiontext"]').value;
+                            Snippet = new SnippetMaker(option.dataset.hash, itemsData[option.dataset.id].name);
+                            Snippet.setText(buttontext);
+                            codearea[0].innerText = Snippet.getImageAndText();
+                        }
+                    }
                     addAddDropListener(editor);
                 });
                 DropAdd.Status = 'Clear';
@@ -152,7 +166,7 @@ const addAddDropListener = (editor) => {
     let temp = document.getElementsByClassName('tiny-stash-add-drop');
     temp[0].addEventListener('click', (e) => {
         e.preventDefault();
-        $('.carousel').carousel('next');
+        $('.carousel').carousel(2);
         $('.carousel').carousel('pause');
         // init drop add page.
         DropAdd.init(itemsData, editor);
@@ -226,7 +240,7 @@ const updatePreview = (itemid) => {
 
 const getDropData = async (contextid) => {
     try {
-        let temp = await getAllDropData(contextid);
+        let temp = await WebService.getAllDropData(contextid);
         return temp;
     } catch (e) {
         return {};
@@ -235,31 +249,9 @@ const getDropData = async (contextid) => {
 
 const getItemData = async (courseid) => {
     try {
-        let temp = await getAllItemData(courseid);
+        let temp = await WebService.getAllItemData(courseid);
         return temp;
     } catch (e) {
         return {};
     }
 };
-
-/**
- * Get all drop data.
- *
- * @param {int} contextid - The context id.
- * @returns {Promise<void>}
- */
-const getAllDropData = (contextid) => Ajax.call([{
-    methodname: 'block_stash_get_all_drops',
-    args: {contextid: contextid}
-}])[0];
-
-/**
- * Get all item data.
- *
- * @param {int} courseid - The course id.
- * @returns {Promise<void>}
- */
-const getAllItemData = (courseid) => Ajax.call([{
-    methodname: 'block_stash_get_items',
-    args: {courseid: courseid}
-}])[0];

@@ -22,12 +22,13 @@
 
 import $ from 'jquery';
 import Templates from 'core/templates';
-import Ajax from 'core/ajax';
 import {getCourseId} from 'tiny_stash/options';
+import * as WebService from 'tiny_stash/webservice-calls';
 
 let ItemsData = {};
 let Editor = {};
 export let Status = 'Clear';
+export let SavedIndex = '';
 
 /**
  * Initialisation function for the drop add modal.
@@ -38,11 +39,14 @@ export let Status = 'Clear';
 export const init = (itemsData, editor) => {
     ItemsData = itemsData;
     Editor = editor;
-    let areanode = document.querySelector('.tiny-stash-next-slide');
+    let areanode = document.querySelector('.tiny-stash-location');
     // format items for export to the template.
     let data = {items: []};
     for (let item of Object.entries(ItemsData)) {
         data.items.push({id: item[1].id, name: item[1].name});
+    }
+    if (data.items.length === 1) {
+        data.oneonly = true;
     }
 
     if (areanode) {
@@ -107,7 +111,13 @@ export const removeChildren = (node) => {
  */
 const saveLocation = (e) => {
     let itemnode = document.querySelector('.stash-item');
-    let itemvalue = itemnode.options[itemnode.selectedIndex].value;
+    let itemvalue = 0;
+    if (("id" in itemnode.dataset)) {
+        itemvalue = itemnode.dataset.id;
+    } else {
+        itemvalue = itemnode.options[itemnode.selectedIndex].value;
+    }
+
     let locationnode = document.querySelector('.location-name').value;
     let suppliesnode = document.querySelector('.location-supplies').value;
     let suppliesunlimitednode = document.querySelector('#supplyunlimited').checked;
@@ -126,7 +136,8 @@ const saveLocation = (e) => {
         pickupinterval: realinterval
     };
     let courseid = getCourseId(Editor);
-    createDrop(courseid, data).then(() => {
+    WebService.createDrop(courseid, data).then((hashcode) => {
+        SavedIndex = hashcode;
         Status = 'Saved';
         shiftBack(e);
     });
@@ -153,10 +164,10 @@ const addFooterListeners = () => {
  */
 const shiftBack = (e) => {
     e.preventDefault();
-    $('.carousel').carousel('prev');
+    $('.carousel').carousel(0);
     $('.carousel').carousel('pause');
     // Clear this page.
-    let areanode = document.querySelector('.tiny-stash-next-slide');
+    let areanode = document.querySelector('.tiny-stash-location');
     removeChildren(areanode);
     // Replace footer.
     Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
@@ -166,20 +177,3 @@ const shiftBack = (e) => {
         Templates.appendNodeContents(modalfooter, html, js);
     });
 };
-
-/**
- * Create the drop.
- *
- * @param {number} courseid - The course id.
- * @param {object} dropdata - The data for the drop.
- */
-const createDrop = (courseid, dropdata) => Ajax.call([{
-    methodname: 'block_stash_add_drop',
-    args: {
-        courseid: courseid,
-        itemid: dropdata.itemid,
-        name: dropdata.location,
-        maxpickup: dropdata.supplies,
-        pickupinterval: dropdata.pickupinterval
-    }
-}])[0];

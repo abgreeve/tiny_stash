@@ -23,14 +23,21 @@
 import Fragment from 'core/fragment';
 import Templates from 'core/templates';
 import $ from 'jquery';
-import Ajax from 'core/ajax';
 import * as Toast from 'core/toast';
+import * as WebService from 'tiny_stash/webservice-calls';
+import {getContextId} from 'editor_tiny/options';
+import {getCourseId} from 'tiny_stash/options';
+import * as DropAdd from 'tiny_stash/drop-add';
 
 let CourseId = 0;
+let Editor = {};
 export let Status = 'Clear';
 
-export const init = (courseid, contextid) => {
-    CourseId = courseid;
+export const init = (editor) => {
+    Editor = editor;
+    let contextid = getContextId(editor);
+    CourseId = getCourseId(editor);
+    let courseid = CourseId;
 
     let areanode = document.querySelector('.tiny-stash-next-slide');
     Fragment.loadFragment('tiny_stash', 'add_item_form', contextid ,{courseid}).then((html, js) => {
@@ -103,12 +110,25 @@ const saveItem = (event) => {
     };
     validateForm(submitdata).then((result) => {
         if (result) {
-            createItem(submitdata).then(() => {
+            WebService.createItem(CourseId, submitdata).then((itemdata) => {
                 Status = 'Saved';
-                shiftBack(event);
+                if (document.querySelector('.submit-then-drop').checked) {
+                    addLocation(event, itemdata);
+                } else {
+                    shiftBack(event);
+                }
             });
         }
     });
+};
+
+const addLocation = (e, itemdata) => {
+    e.preventDefault();
+    $('.carousel').carousel('next');
+    $('.carousel').carousel('pause');
+    let areanode = document.querySelector('.tiny-stash-next-slide');
+    removeChildren(areanode);
+    DropAdd.init({itemdata}, Editor);
 };
 
 const validateForm = async (formdata) => {
@@ -139,15 +159,3 @@ const validateForm = async (formdata) => {
     }
     return true;
 };
-
-const createItem = (itemdata) => Ajax.call([{
-    methodname: 'block_stash_add_item',
-    args: {
-        courseid: CourseId,
-        itemname: itemdata.itemname,
-        scarceitem: itemdata.scarceitem,
-        amountlimit: itemdata.amountlimit,
-        itemimage: itemdata.itemimage,
-        description: itemdata.description,
-    }
-}])[0];
