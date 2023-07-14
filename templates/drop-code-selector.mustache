@@ -15,10 +15,25 @@
       </ul>
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="item" role="tabpanel" aria-labelledby="item-tab">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <span class="navbar-brand mb-0 h1">Items and locations</span>
+            <div class="d-flex flex-row ml-auto">
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerItems" aria-controls="navbarTogglerItems" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <!-- <h4>{{#str}}items, tiny_stash{{/str}}</h4> -->
+              <div class="collapse navbar-collapse" id="navbarTogglerItems">
+                <div class="navbar-nav mr-auto">
+                </div>
+                <div class="btn-group" role="group" aria-label="Add items and locations">
+                  <button class="btn btn-outline-primary tiny-stash-add-item">Add item</button>
+                  <button class="btn btn-outline-primary tiny-stash-add-drop">Add a location</button>
+                </div>
+              </div>
+            </div>
+          </nav>
           <form>
-              <h4>{{#str}}items, tiny_stash{{/str}}</h4>
-              <button class="btn btn-primary tiny-stash-add-item">Add item</button>
-              <div class="input-group tiny-stash-drop-select">
+              <div class="input-group tiny-stash-drop-select pt-2">
                 {{> tiny_stash/drop-select}}
               </div>
               {{> tiny_stash/item-drop-snippet}}

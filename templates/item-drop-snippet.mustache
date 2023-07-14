@@ -17,10 +17,9 @@
 {{!
     Drop snippet builder.
 }}
-<div id="tiny-stash-snippet-ui-{{uniqid}}" class="tiny-stash-snippet-ui">
+<div id="tiny-stash-snippet-ui-{{uniqid}}" class="tiny-stash-snippet-ui pt-3">
     <div style="display: flex">
         <div style="flex: 2">
-
             <div>
                 <label for="label-displaytype-{{uniqid}}">{{#str}}appearance, block_stash{{/str}}</label>
                 <div>
@@ -32,14 +31,14 @@
                 </div>
             </div>
 
-            <div class="snippet-label d-none">
+            <div class="snippet-label d-none pt-3">
                 <label for="label-label-{{uniqid}}">{{#str}}text, block_stash{{/str}}</label>
                 <div>
-                    <input type="text" name="label" class="form-control" id="label-label-{{uniqid}}">
+                    <input type="text" name="label" class="form-control" id="label-label-{{uniqid}}" value="Pick up!">
                 </div>
             </div>
 
-            <div class="snippet-actiontext">
+            <div class="snippet-actiontext pt-3">
                 <label for="label-actiontext-{{uniqid}}">{{#str}}buttontext, block_stash{{/str}}</label>
                 <div>
                     <input type="text" name="actiontext" class="form-control" id="label-actiontext-{{uniqid}}" value="Pick up!" />
@@ -47,7 +46,7 @@
             </div>
 
         </div>
-        <div style="flex: 1; display: flex; justify-content: center;">
+        <div class="pt-2" style="flex: 1; display: flex; justify-content: center;">
             <div class="preview"></div>
         </div>
     </div>

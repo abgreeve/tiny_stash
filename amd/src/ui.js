@@ -106,12 +106,7 @@ const displayDialogue = async(editor) => {
                         let option = selectitemnode.options[i];
                         if (option.dataset.hash == DropAdd.SavedIndex) {
                             option.selected = true;
-                            updatePreview(option.dataset.id);
-                            let codearea = document.getElementsByClassName('tiny-stash-item-code');
-                            let buttontext = document.querySelector('input[name="actiontext"]').value;
-                            Snippet = new SnippetMaker(option.dataset.hash, itemsData[option.dataset.id].name);
-                            Snippet.setText(buttontext);
-                            codearea[0].innerText = Snippet.getImageAndText();
+                            setPreview(option.dataset.id, option.dataset.hash);
                         }
                     }
                     addAddDropListener(editor);
@@ -146,13 +141,7 @@ const displayDialogue = async(editor) => {
         let element = event.target;
         let elementtype = element.dataset.type;
         if (element.nodeName === "OPTION" && elementtype == 'item') {
-            let itemid = element.dataset.id;
-            let codearea = document.getElementsByClassName('tiny-stash-item-code');
-            let buttontext = document.querySelector('input[name="actiontext"]').value;
-            Snippet = new SnippetMaker(element.dataset.hash, itemsData[itemid].name);
-            Snippet.setText(buttontext);
-            updatePreview(itemid);
-            codearea[0].innerText = Snippet.getImageAndText();
+            setPreview(element.dataset.id, element.dataset.hash);
         }
         if (element.nodeName === "OPTION" && elementtype == 'trade') {
             let codearea = document.getElementsByClassName('tiny-stash-trade-code');
@@ -189,7 +178,8 @@ const addAppearanceListener = () => {
             document.querySelector('.snippet-label').classList.add('d-none');
             document.querySelector('.snippet-actiontext').classList.remove('d-none');
         }
-
+        let itemid = document.querySelector('.tiny-stash-item-select').selectedOptions[0].dataset.id;
+        setPreview(itemid, selectedelement.value);
     });
 };
 
@@ -209,32 +199,82 @@ const addTextAndImageListener = () => {
         Snippet.setText(buttontext);
         codearea[0].innerText = Snippet.getImageAndText();
     });
+
+    let labelnode = document.querySelector('input[name="label"]');
+
+    labelnode.addEventListener('keyup', () => {
+        // if no preview exit early.
+        if (!document.querySelector('.block-stash-item')) {
+            return;
+        }
+        let itemnode = document.querySelector('.tiny-stash-item-select');
+        setPreview(itemnode.selectedOptions[0].dataset.id, itemnode.selectedOptions[0].dataset.hash);
+    });
+
+};
+
+const setPreview = (itemid, hashcode) => {
+    // Check the appearance to determine what to display and update.
+    let appearanceselector = document.querySelector('.tiny-stash-appearance');
+    let codearea = document.getElementsByClassName('tiny-stash-item-code');
+    let buttontext = '';
+    if (appearanceselector.value === 'text') {
+        buttontext = document.querySelector('input[name="label"]').value;
+    } else {
+        buttontext = document.querySelector('input[name="actiontext"]').value;
+    }
+    Snippet = new SnippetMaker(hashcode, itemsData[itemid].name);
+    Snippet.setText(buttontext);
+
+    updatePreview(itemid, appearanceselector.value);
+    if (appearanceselector.value === 'imageandbutton') {
+        codearea[0].innerText = Snippet.getImageAndText();
+    } else if (appearanceselector.value === 'image') {
+        codearea[0].innerText = Snippet.getImage();
+    } else {
+        codearea[0].innerText = Snippet.getText();
+    }
+
 };
 
 /**
  * Update the preview image.
  *
  * @param {int} itemid
+ * @param {string} previewtype
  */
-const updatePreview = (itemid) => {
+const updatePreview = (itemid, previewtype) => {
     let previewnode = document.querySelector('.preview');
     previewnode.children.forEach((child) => { previewnode.removeChild(child); });
 
     let wrappingdiv = document.createElement('div');
     wrappingdiv.classList.add('block-stash-item');
-    let imagediv = document.createElement('div');
-    imagediv.classList.add('item-image');
-    imagediv.style.backgroundImage = 'url(' + itemsData[itemid].imageurl + ')';
-    let buttondiv = document.createElement('div');
-    buttondiv.classList.add('item-action');
-    let button = document.createElement('button');
-    button.classList.add('btn', 'btn-secondary', 'tiny-stash-button-preview');
-    button.setAttribute('disabled', true);
-    let temp = document.querySelector('input[name="actiontext"]');
-    button.innerHTML = temp.value;
-    buttondiv.appendChild(button);
-    wrappingdiv.appendChild(imagediv);
-    wrappingdiv.appendChild(buttondiv);
+
+    if (previewtype === 'text') {
+        let textanchour = document.createElement('a');
+        textanchour.setAttribute('href', '#');
+        textanchour.innerText = document.querySelector('input[name="label"]').value;
+        wrappingdiv.appendChild(textanchour);
+    } else {
+        // Image and text
+        let imagediv = document.createElement('div');
+        imagediv.classList.add('item-image');
+        imagediv.style.backgroundImage = 'url(' + itemsData[itemid].imageurl + ')';
+        if (previewtype === 'imageandbutton') {
+            let buttondiv = document.createElement('div');
+            buttondiv.classList.add('item-action');
+            let button = document.createElement('button');
+            button.classList.add('btn', 'btn-secondary', 'tiny-stash-button-preview');
+            button.setAttribute('disabled', true);
+            let temp = document.querySelector('input[name="actiontext"]');
+            button.innerHTML = temp.value;
+            buttondiv.appendChild(button);
+            wrappingdiv.appendChild(imagediv);
+            wrappingdiv.appendChild(buttondiv);
+        } else {
+            wrappingdiv.appendChild(imagediv);
+        }
+    }
     previewnode.appendChild(wrappingdiv);
 };
 
