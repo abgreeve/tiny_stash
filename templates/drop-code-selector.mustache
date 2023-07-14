@@ -46,7 +46,7 @@
         <div class="tab-pane fade" id="trade" role="tabpanel" aria-labelledby="trade-tab">
           <form>
               <h4>{{#str}}trades, tiny_stash{{/str}}</h4>
-              <select>
+              <select class="form-control custom-select mr-sm-2">
                 {{#trades}}
                   <option data-hash="{{hashcode}}" data-type="trade" data-id="{{id}}">{{name}}</option>
                 {{/trades}}
