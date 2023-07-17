@@ -22,10 +22,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['additem'] = 'Add item';
+$string['additemsandlocation'] = 'Add items and locations';
+$string['addlocation'] = 'Add location';
+$string['addlocationitem'] = 'Add a location for this item';
 $string['buttontitle'] = 'Insert stash item';
+$string['choose'] = 'Choose ...';
+$string['collectioninterval'] = 'Collection interval';
+$string['collectionintervaltime'] = 'Collection interval time';
 $string['dropselect'] = 'Select an item or trade to insert a code';
 $string['helplinktext'] = 'Add a stash code';
+$string['imagewarning'] = 'Please add an image for the item';
+$string['item'] = 'Item';
 $string['items'] = 'Items';
+$string['itemsandlocation'] = 'Items and locations';
+$string['location'] = 'Location';
+$string['modalheading'] = 'Stash code helper';
+$string['namewarning'] = 'Please add a name for the item';
+$string['pickup'] = 'Pick up!';
 $string['pluginname'] = 'Tiny insert stash';
+$string['snippetinserter'] = 'Snippet inserter';
+$string['supplies'] = 'Supplies';
 $string['trades'] = 'Trades';
+$string['unlimited'] = 'Unlimited';
+
+$string['weeks'] = 'weeks';
+$string['days'] = 'days';
+$string['hours'] = 'hours';
+$string['minutes'] = 'minutes';
+$string['seconds'] = 'seconds';
 

@@ -28,6 +28,7 @@ import * as WebService from 'tiny_stash/webservice-calls';
 import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
 import * as DropAdd from 'tiny_stash/drop-add';
+import {get_string as getString} from 'core/str';
 
 let CourseId = 0;
 let Editor = {};
@@ -135,7 +136,7 @@ const validateForm = async (formdata) => {
     window.console.log(formdata);
     await Toast.addToastRegion(document.querySelector('.tiny-stash-next-slide'));
     if (!formdata.itemname) {
-        Toast.add('Please add a name for the item', {
+        Toast.add(getString('namewarning', 'tiny_stash'), {
             type: 'warning',
             autohide: true,
             closeButton: true,
@@ -148,7 +149,7 @@ const validateForm = async (formdata) => {
     let yeppo = hoboy.querySelector('.fp-content');
     // window.console.log(yeppo.children.length);
     if (yeppo.children.length < 1) {
-        Toast.add('Please add an image for the item', {
+        Toast.add(getString('imagewarning', 'tiny_stash'), {
             type: 'warning',
             autohide: true,
             closeButton: true,

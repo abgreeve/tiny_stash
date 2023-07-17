@@ -31,6 +31,7 @@ import * as DropAdd from 'tiny_stash/drop-add';
 import * as AddItem from 'tiny_stash/additem';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 import * as WebService from 'tiny_stash/webservice-calls';
+import {get_string as getString} from 'core/str';
 
 let itemsData = {};
 let Snippet = {};
@@ -62,7 +63,7 @@ const displayDialogue = async(editor) => {
     // window.console.log(data);
 
     const modalPromises = await ModalFactory.create({
-        title: "Stash stuff here",
+        title: getString('modalheading', 'tiny_stash'),
         type: ModalFactory.types.SAVE_CANCEL,
         body: Templates.render('tiny_stash/drop-code-selector', data),
         large: true,
