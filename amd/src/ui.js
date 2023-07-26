@@ -29,6 +29,7 @@ import {getCourseId} from 'tiny_stash/options';
 import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
 import * as AddItem from 'tiny_stash/additem';
+import * as AddTrade from 'tiny_stash/addtrade';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 import * as WebService from 'tiny_stash/webservice-calls';
 import {get_string as getString} from 'core/str';
@@ -80,18 +81,27 @@ const displayDialogue = async(editor) => {
     });
 
     $root.on(ModalEvents.bodyRendered, () => {
-        addAddDropListener(editor);
+        addDropListener(editor);
 
         // Add a listener for the appearance select box.
         addAppearanceListener();
         addTextAndImageListener();
 
-        let additembutton = document.querySelector('.tiny-stash-add-item');
-        additembutton.addEventListener('click', (e) => {
+        let additembuttons = document.querySelectorAll('.tiny-stash-add-item');
+        for (let additembutton of additembuttons) {
+            additembutton.addEventListener('click', (e) => {
+                e.preventDefault();
+                $('.carousel').carousel('next');
+                $('.carousel').carousel('pause');
+                AddItem.init(editor);
+            });
+        }
+
+        document.querySelector('.tiny-stash-add-trade').addEventListener('click', (e) => {
             e.preventDefault();
-            $('.carousel').carousel('next');
+            $('.carousel').carousel(3);
             $('.carousel').carousel('pause');
-            AddItem.init(editor);
+            AddTrade.init(editor);
         });
 
         $('.carousel').on('slide.bs.carousel', async () => {
@@ -110,7 +120,7 @@ const displayDialogue = async(editor) => {
                             setPreview(option.dataset.id, option.dataset.hash);
                         }
                     }
-                    addAddDropListener(editor);
+                    addDropListener(editor);
                 });
                 DropAdd.Status = 'Clear';
             }
@@ -152,7 +162,7 @@ const displayDialogue = async(editor) => {
     });
 };
 
-const addAddDropListener = (editor) => {
+const addDropListener = (editor) => {
     let temp = document.getElementsByClassName('tiny-stash-add-drop');
     temp[0].addEventListener('click', (e) => {
         e.preventDefault();

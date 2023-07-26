@@ -72,3 +72,8 @@ export const createDrop = (courseid, dropdata) => Ajax.call([{
         pickupinterval: dropdata.pickupinterval
     }
 }])[0];
+
+export const createTrade = (tradedata) => Ajax.call([{
+    methodname: 'block_stash_create_trade',
+    args: tradedata
+}])[0];

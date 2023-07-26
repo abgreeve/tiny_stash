@@ -28,7 +28,6 @@ function tiny_stash_output_fragment_add_item_form($args) {
     $args = (object) $args;
     $courseid = $args->courseid;
     $context = \context_course::instance($courseid);
-    $o = '';
 
     $manager = \block_stash\manager::get($courseid);
     $fileareaoptions = ['maxfiles' => 1];
@@ -45,10 +44,20 @@ function tiny_stash_output_fragment_add_item_form($args) {
     $mform = new block_stash\form\item(null, $customdata);
     // print_object($mform);
 
-    ob_start();
-    $mform->display();
-    $o .= ob_get_contents();
-    ob_end_clean();
+    return $mform->render();
+}
 
-    return $o;
+function tiny_stash_output_fragment_add_trade_form($args) {
+    global $PAGE;
+
+    $args = (object) $args;
+    $courseid = $args->courseid;
+
+    $manager = \block_stash\manager::get($courseid);
+
+    $renderer = $PAGE->get_renderer('block_stash');
+    $fulltrade = new \block_stash\output\fulltrade($manager->get_stash()->get_id(), null, null, $courseid);
+    $fulltrade->remove_form_buttons();
+
+    return $renderer->render_trade_form($fulltrade);
 }

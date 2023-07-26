@@ -3,7 +3,6 @@
     <div class="carousel-item active">
       <h3>{{#str}}dropselect, tiny_stash{{/str}}</h3>
 
-      <!-- TODO add a button to create a new item or trade -->
       <!-- Add a tab for items and one for trades -->
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -15,53 +14,18 @@
       </ul>
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="item" role="tabpanel" aria-labelledby="item-tab">
-          <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <span class="navbar-brand mb-0 h1">{{#str}}itemsandlocation, tiny_stash{{/str}}</span>
-            <div class="d-flex flex-row ml-auto">
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerItems" aria-controls="navbarTogglerItems" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <!-- <h4>{{#str}}items, tiny_stash{{/str}}</h4> -->
-              <div class="collapse navbar-collapse" id="navbarTogglerItems">
-                <div class="navbar-nav mr-auto">
-                </div>
-                <div class="btn-group" role="group" aria-label="{{#str}}additemsandlocation, tiny_stash{{/str}}">
-                  <button class="btn btn-outline-primary tiny-stash-add-item">{{#str}}additem, tiny_stash{{/str}}</button>
-                  <button class="btn btn-outline-primary tiny-stash-add-drop">{{#str}}addlocation, tiny_stash{{/str}}</button>
-                </div>
-              </div>
-            </div>
-          </nav>
-          <form>
-              <div class="input-group tiny-stash-drop-select pt-2">
-                {{> tiny_stash/drop-select}}
-              </div>
-              {{> tiny_stash/item-drop-snippet}}
-              <div class="tiny-stash-item-code">
-              </div>
-              <!-- Show selected thing -->
-              <!-- Provide options related to this thing -->
-          </form>
+          {{> tiny_stash/local/tabs/locations-main}}
         </div>
         <div class="tab-pane fade" id="trade" role="tabpanel" aria-labelledby="trade-tab">
-          <form>
-              <h4>{{#str}}trades, tiny_stash{{/str}}</h4>
-              <select class="form-control custom-select mr-sm-2">
-                {{#trades}}
-                  <option data-hash="{{hashcode}}" data-type="trade" data-id="{{id}}">{{name}}</option>
-                {{/trades}}
-              </select>
-              <div class="tiny-stash-trade-code">
-              </div>
-              <!-- Show selected thing -->
-              <!-- Provide options related to this thing -->
-          </form>
+          {{> tiny_stash/local/tabs/trades-main}}
         </div>
       </div>
     </div>
     <div class="carousel-item tiny-stash-next-slide">
     </div>
     <div class="carousel-item tiny-stash-location">
+    </div>
+    <div class="carousel-item tiny-stash-trade">
     </div>
   </div>
 </div>
