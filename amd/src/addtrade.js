@@ -82,7 +82,7 @@ const shiftBack = (e) => {
     $('.carousel').carousel(0);
     $('.carousel').carousel('pause');
     // Clear this page.
-    let areanode = document.querySelector('.tiny-stash-next-slide');
+    let areanode = document.querySelector('.tiny-stash-trade');
     removeChildren(areanode);
     // Replace footer.
     Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {

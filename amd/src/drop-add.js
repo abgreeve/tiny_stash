@@ -27,8 +27,8 @@ import * as WebService from 'tiny_stash/webservice-calls';
 
 let ItemsData = {};
 let Editor = {};
-export let Status = 'Clear';
 export let SavedIndex = '';
+export let Status = 'Clear';
 
 /**
  * Initialisation function for the drop add modal.
@@ -91,6 +91,14 @@ const addFormListeners = () => {
 
     addListener(suppliesnode);
     addListener(unlimitedflag);
+};
+
+export const setStatus = (newstatus) => {
+    Status = newstatus;
+};
+
+export const getStatus = () => {
+    return Status;
 };
 
 /**

@@ -32,7 +32,7 @@ import {get_string as getString} from 'core/str';
 
 let CourseId = 0;
 let Editor = {};
-export let Status = 'Clear';
+let Status = 'Clear';
 
 export const init = (editor) => {
     Editor = editor;
@@ -52,6 +52,14 @@ export const init = (editor) => {
         Templates.appendNodeContents(modalfooter, html, js);
         addFooterListeners();
     });
+};
+
+export const setStatus = (newstatus) => {
+    Status = newstatus;
+};
+
+export const getStatus = () => {
+    return Status;
 };
 
 /**

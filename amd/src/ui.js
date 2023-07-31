@@ -105,7 +105,7 @@ const displayDialogue = async(editor) => {
         });
 
         $('.carousel').on('slide.bs.carousel', async () => {
-            if (DropAdd.Status == 'Saved') {
+            if (DropAdd.getStatus() == 'Saved') {
                 // window.console.log(DropAdd.SavedIndex);
                 // Reload the drop list.
                 data = await getDropData(contextid);
@@ -122,16 +122,16 @@ const displayDialogue = async(editor) => {
                     }
                     addDropListener(editor);
                 });
-                DropAdd.Status = 'Clear';
+                DropAdd.setStatus('Clear');
             }
-            if (AddItem.Status == 'Saved') {
+            if (AddItem.getStatus() == 'Saved') {
                 // Reload the drop list.
                 itemsData = {};
                 itemdata = await getItemData(courseid);
                 itemdata.items.forEach((item) => {
                     itemsData[item.id] = item;
                 });
-                AddItem.Status = 'Clear';
+                AddItem.setStatus('Clear');
             }
         });
     });

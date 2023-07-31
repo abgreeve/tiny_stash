@@ -22,12 +22,11 @@
  */
 import {getTinyMCE} from 'editor_tiny/loader';
 import {getPluginMetadata} from 'editor_tiny/utils';
-
 import {component, pluginName} from './common';
 import * as Commands from './commands';
 import * as Configuration from './configuration';
 
-export default new Promise(async(resolve) => {
+export default (async () => {
     const [
         tinyMCE,
         setupCommands,
@@ -46,5 +45,5 @@ export default new Promise(async(resolve) => {
     });
 
     // Resolve the Media Plugin and include configuration.
-    resolve([`${component}/plugin`, Configuration]);
-});
+    return [`${component}/plugin`, Configuration];
+})();
