@@ -133,6 +133,27 @@ const displayDialogue = async(editor) => {
                 });
                 AddItem.setStatus('Clear');
             }
+
+            if (AddTrade.getStatus() == 'Saved') {
+                // Reload the trade select element.
+                data = await getDropData(contextid);
+                window.console.log(data);
+                Templates.render('tiny_stash/local/selectors/trade-drop-selector', data).then((html, js) => {
+                    let selectnode = document.querySelector('.tiny-stash-trade-select');
+                    Templates.replaceNodeContents(selectnode, html, js);
+                    let selectitemnode = document.querySelector('.tiny-stash-trade-selector');
+                    for (let i=0; i< selectitemnode.options.length; i++) {
+                        let option = selectitemnode.options[i];
+                        if (option.dataset.hash == AddTrade.TradeHash) {
+                            option.selected = true;
+                            let codearea = document.getElementsByClassName('tiny-stash-trade-code');
+                            let dropcode = "[stashtrade secret=\"" + option.dataset.hash + "\"]";
+                            codearea[0].innerText = dropcode;
+                        }
+                    }
+                });
+                AddTrade.setStatus('ready');
+            }
         });
     });
 

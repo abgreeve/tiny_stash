@@ -27,6 +27,8 @@ import $ from 'jquery';
 import * as WebService from 'tiny_stash/webservice-calls';
 
 let CourseId = 0;
+let Status = 'ready';
+export let TradeHash = '';
 
 export const init = (editor) => {
     let contextid = getContextId(editor);
@@ -56,6 +58,14 @@ const removeChildren = (node) => {
     while (node.firstChild) {
         node.removeChild(node.lastChild);
     }
+};
+
+export const setStatus = (newstatus) => {
+    Status = newstatus;
+};
+
+export const getStatus = () => {
+    return Status;
 };
 
 /**
@@ -93,7 +103,7 @@ const shiftBack = (e) => {
     });
 };
 
-const saveTrade = () => {
+const saveTrade = (e) => {
     let formdata = document.querySelector('.tiny-stash-trade form');
     // window.console.log(formdata);
     let allitems = formdata.querySelectorAll('.block-stash-quantity');
@@ -119,6 +129,9 @@ const saveTrade = () => {
     };
     // window.console.log(data);
     WebService.createTrade(data).then((result) => {
-        window.console.log(result);
+        TradeHash = result;
+        setStatus('Saved');
+        shiftBack(e);
+        // window.console.log(result);
     });
 };

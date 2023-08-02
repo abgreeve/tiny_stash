@@ -36,13 +36,9 @@
 </nav>
 <form>
     <div class="input-group tiny-stash-trade-select pt-2">
-        <select class="form-control custom-select mr-sm-2">
-        {{#trades}}
-            <option data-hash="{{hashcode}}" data-type="trade" data-id="{{id}}">{{name}}</option>
-        {{/trades}}
-        </select>
+        {{> tiny_stash/local/selectors/trade-drop-selector}}
     </div>
-    <div class="tiny-stash-trade-code">
+    <div class="tiny-stash-trade-code bg-light text-muted mt-2 px-2 py-2 border">
     </div>
     <!-- Show selected thing -->
     <!-- Provide options related to this thing -->
