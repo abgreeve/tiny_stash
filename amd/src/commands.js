@@ -70,5 +70,20 @@ export const getSetup = async() => {
             text: buttonText,
             onAction: () => handleAction(editor),
         });
+
+        editor.on("submit", e => {
+            e.preventDefault();
+
+            const tempcontainer = document.createElement('div');
+            tempcontainer.innerHTML = editor.getContent();
+
+            tempcontainer.querySelectorAll('.block-stash-item').forEach(stashitem => {
+                const shortcode = stashitem.querySelectorAll('.tiny-stash-shortcode')[0].textContent;
+                stashitem.replaceWith(shortcode);
+            });
+
+            editor.setContent(tempcontainer.innerHTML);
+            editor.getElement().closest('form').submit();
+        });
     };
 };

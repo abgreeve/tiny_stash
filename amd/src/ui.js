@@ -74,8 +74,6 @@ const displayDialogue = async(editor) => {
     const $root = await modalPromises.getRoot();
     const root = $root[0];
 
-    let savedata = {};
-
     $root.on(ModalEvents.hidden, () => {
         modalPromises.destroy();
     });
@@ -165,8 +163,28 @@ const displayDialogue = async(editor) => {
         } else {
             codearea = document.getElementsByClassName('tiny-stash-trade-code');
         }
-        savedata.codearea = codearea[0].innerText;
-        editor.execCommand('mceInsertContent', false, savedata.codearea);
+
+        const previewnode = document.querySelector('.preview .block-stash-item').cloneNode(true);
+        const itemimage = previewnode.getElementsByClassName('item-image')[0];
+
+        // Because the editor is in an iframe, it doesn't get all the block_satsh
+        // styles. So these have just been very elegantly copied over.
+        //
+        // See: https://github.com/abgreeve/moodle-block_stash/blob/v2.0.2/styles.css#L45
+        itemimage.style.backgroundPosition = 'center center';
+        itemimage.style.backgroundSize = 'cover';
+        itemimage.style.width = '100px';
+        itemimage.style.height = '100px';
+        itemimage.style.position = 'relative';
+
+        const shortcodediv = document.createElement('div');
+        shortcodediv.classList.add("tiny-stash-shortcode");
+        shortcodediv.innerHTML = codearea[0].innerText;
+        shortcodediv.style.display = "none";
+        previewnode.appendChild(shortcodediv);
+        previewnode.setAttribute('contenteditable', false);
+
+        editor.execCommand('mceInsertContent', false, previewnode.outerHTML.replace(/&quot;/g, "'"));
     });
 
     root.addEventListener('click', (event) => {
