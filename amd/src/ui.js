@@ -93,7 +93,8 @@ const displayDialogue = async(editor) => {
                 e.preventDefault();
                 $('.carousel').carousel('next');
                 $('.carousel').carousel('pause');
-                AddItem.init(editor);
+                let location = e.currentTarget.dataset.location;
+                AddItem.init(editor, location);
             });
         }
 
@@ -210,8 +211,9 @@ const addAppearanceListener = () => {
             document.querySelector('.snippet-label').classList.add('d-none');
             document.querySelector('.snippet-actiontext').classList.remove('d-none');
         }
-        let itemid = document.querySelector('.tiny-stash-item-select').selectedOptions[0].dataset.id;
-        setPreview(itemid, selectedelement.value);
+
+        let itemselect = document.querySelector('.tiny-stash-item-select').selectedOptions[0];
+        setPreview(itemselect.dataset.id, itemselect.dataset.hash);
     });
 };
 

@@ -1,7 +1,12 @@
-<div class="w-100 d-flex pl-3">
-    <input class="form-check-input submit-then-drop mr-auto" id="location-check" type="checkbox" checked />
-    <label class="form-check-label mr-auto" for="location-check">{{#str}}addlocationitem, tiny_stash{{/str}}</label>
-    <button class="btn btn-secondary" data-action="back">{{#str}}back, core{{/str}}</button>
-    <button class="btn btn-secondary" data-action="cancel">{{#str}}cancel, core{{/str}}</button>
-    <button class="btn btn-primary" data-action="add">{{#str}}additem, tiny_stash{{/str}}</button>
+<div class="w-100 pl-3 d-flex justify-content-end">
+    <button class="btn btn-secondary mr-1" data-action="back">{{#str}}back, core{{/str}}</button>
+    <button class="btn btn-secondary mr-1" data-action="cancel">{{#str}}cancel, core{{/str}}</button>
+    {{#location}}
+    <button class="btn btn-primary mr-1" data-action="add">{{#str}}additem, tiny_stash{{/str}}</button>
+    <button class="btn btn-primary mr-1" data-action="add-and-location">{{#str}}additemlocation, tiny_stash{{/str}}</button>
+    {{/location}}
+    {{#trade}}
+    <button class="btn btn-primary mr-1" data-action="add-gain">{{#str}}additemgain, tiny_stash{{/str}}</button>
+    <button class="btn btn-primary mr-1" data-action="add-loss">{{#str}}additemloss, tiny_stash{{/str}}</button>
+    {{/trade}}
 </div>

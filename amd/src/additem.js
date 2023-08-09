@@ -33,8 +33,14 @@ import {get_string as getString} from 'core/str';
 let CourseId = 0;
 let Editor = {};
 let Status = 'Clear';
+let Item = {};
 
-export const init = (editor) => {
+const SAVEONLY = 'save';
+const SAVEGAIN = 'gain';
+const SAVELOSS = 'loss';
+const SAVELOCATION = 'savelocation';
+
+export const init = (editor, location) => {
     Editor = editor;
     let contextid = getContextId(editor);
     CourseId = getCourseId(editor);
@@ -45,12 +51,20 @@ export const init = (editor) => {
         Templates.appendNodeContents(areanode, html, js);
     });
 
-    Templates.render('tiny_stash/local/footers/add-item-footer', {}).then((html, js) => {
+    let footerdata = {};
+    if (location == 'location') {
+        footerdata.location = true;
+    }
+    if (location == 'trade') {
+        footerdata.trade = true;
+    }
+
+    Templates.render('tiny_stash/local/footers/add-item-footer', footerdata).then((html, js) => {
         let modalfooter = document.querySelector('.modal-footer');
         // Remove existing buttons.
         removeChildren(modalfooter);
         Templates.appendNodeContents(modalfooter, html, js);
-        addFooterListeners();
+        addFooterListeners(location);
     });
 };
 
@@ -60,6 +74,10 @@ export const setStatus = (newstatus) => {
 
 export const getStatus = () => {
     return Status;
+};
+
+export const getItem = () => {
+    return Item;
 };
 
 /**
@@ -75,40 +93,71 @@ export const removeChildren = (node) => {
 
 /**
  * Add listeners to the footer buttons.
+ *
+ * @param {string} location - The location of where we came from.
  */
-const addFooterListeners = () => {
+const addFooterListeners = (location) => {
     let backbutton = document.querySelector('button[data-action="back"]');
     backbutton.addEventListener('click', (e) => {
-        shiftBack(e);
+        shiftBack(e, location);
     });
-    let addbutton = document.querySelector('button[data-action="add"]');
-    addbutton.addEventListener('click', (e) => {
-        saveItem(e);
-    });
+    if (location == 'location') {
+        let addbutton = document.querySelector('button[data-action="add"]');
+        addbutton.addEventListener('click', (e) => {
+            saveItem(e, SAVEONLY);
+        });
+        let addlocationbutton = document.querySelector('button[data-action="add-and-location"]');
+        addlocationbutton.addEventListener('click', (e) => {
+            saveItem(e, SAVELOCATION);
+        });
+    } else {
+        let addbutton = document.querySelector('button[data-action="add-gain"]');
+        addbutton.addEventListener('click', (e) => {
+            saveItem(e, SAVEGAIN);
+        });
+        let addbuttonloss = document.querySelector('button[data-action="add-loss"]');
+        addbuttonloss.addEventListener('click', (e) => {
+            saveItem(e, SAVELOSS);
+        });
+    }
 };
 
 /**
  * Shift the carousel back.
  *
  * @param {event} e - The related event.
+ * @param {string} location - The location of where we came from.
  */
-const shiftBack = (e) => {
+const shiftBack = (e, location) => {
     e.preventDefault();
-    $('.carousel').carousel('prev');
+    if (location == 'trade') {
+        $('.carousel').carousel(3);
+    } else {
+        $('.carousel').carousel('prev');
+    }
     $('.carousel').carousel('pause');
     // Clear this page.
     let areanode = document.querySelector('.tiny-stash-next-slide');
     removeChildren(areanode);
     // Replace footer.
-    Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
-        let modalfooter = document.querySelector('.modal-footer');
-        // Remove existing buttons.
-        removeChildren(modalfooter);
-        Templates.appendNodeContents(modalfooter, html, js);
-    });
+    if (location == 'trade') {
+        Templates.render('tiny_stash/local/footers/add-trade-footer', {}).then((html, js) => {
+            let modalfooter = document.querySelector('.modal-footer');
+            // Remove existing buttons.
+            removeChildren(modalfooter);
+            Templates.appendNodeContents(modalfooter, html, js);
+        });
+    } else {
+        Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
+            let modalfooter = document.querySelector('.modal-footer');
+            // Remove existing buttons.
+            removeChildren(modalfooter);
+            Templates.appendNodeContents(modalfooter, html, js);
+        });
+    }
 };
 
-const saveItem = (event) => {
+const saveItem = (event, aftersave) => {
     let formdata = document.querySelector('.tiny-stash-next-slide form');
     let submitdata = {
         itemname: formdata.querySelector('#id_name').value,
@@ -121,10 +170,20 @@ const saveItem = (event) => {
         if (result) {
             WebService.createItem(CourseId, submitdata).then((itemdata) => {
                 Status = 'Saved';
-                if (document.querySelector('.submit-then-drop').checked) {
+                if (aftersave == SAVELOCATION) {
                     addLocation(event, itemdata);
-                } else {
+                } else if (aftersave == SAVEONLY) {
                     shiftBack(event);
+                } else if (aftersave == SAVEGAIN) {
+                    // Save to gain column.
+                    Status = SAVEGAIN;
+                    Item = itemdata;
+                    shiftBack(event, 'trade');
+                } else {
+                    // Save to loss column.
+                    Status = SAVELOSS;
+                    Item = itemdata;
+                    shiftBack(event, 'trade');
                 }
             });
         }

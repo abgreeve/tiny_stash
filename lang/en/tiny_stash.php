@@ -23,6 +23,9 @@
  */
 
 $string['additem'] = 'Add item';
+$string['additemgain'] = 'Add item to gain';
+$string['additemloss'] = 'Add item to loss';
+$string['additemlocation'] = 'Save and next';
 $string['additemsandlocation'] = 'Add items and locations';
 $string['addlocation'] = 'Add location';
 $string['addlocationitem'] = 'Add a location for this item';
