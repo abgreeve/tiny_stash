@@ -35,6 +35,7 @@ import * as WebService from 'tiny_stash/webservice-calls';
 import {get_string as getString} from 'core/str';
 
 let itemsData = {};
+let tradeData = {};
 let Snippet = {};
 
 /**
@@ -62,6 +63,7 @@ const displayDialogue = async(editor) => {
         });
     }
     // window.console.log(data);
+    formatTradeInformation(data.trades, itemsData);
 
     const modalPromises = await ModalFactory.create({
         title: getString('modalheading', 'tiny_stash'),
@@ -180,6 +182,7 @@ const displayDialogue = async(editor) => {
             let codearea = document.getElementsByClassName('tiny-stash-trade-code');
             let dropcode = "[stashtrade secret=\"" + element.dataset.hash + "\"]";
             codearea[0].innerText = dropcode;
+            setTradePreview(element.dataset.hash);
         }
     });
 };
@@ -310,6 +313,62 @@ const updatePreview = (itemid, previewtype) => {
         }
     }
     previewnode.appendChild(wrappingdiv);
+};
+
+const formatTradeInformation = (tradedata, itemdata) => {
+    let data = {};
+    for (let tradedatum of tradedata) {
+        data[tradedatum.tradeid] = {
+            'tradeid': tradedatum.tradeid,
+            'name': tradedatum.name,
+            'gaintitle': tradedatum.gaintitle,
+            'losstitle': tradedatum.losstitle,
+            'hashcode': tradedatum.hashcode,
+            'additems': [],
+            'lossitems': []
+        };
+
+        for (let gainitem of tradedatum.additems) {
+            if (gainitem) {
+                data[tradedatum.tradeid].additems.push({
+                    'itemid': gainitem.itemid,
+                    'quantity': gainitem.quantity,
+                    'name': itemdata[gainitem.itemid].name,
+                    'imageurl': itemdata[gainitem.itemid].imageurl
+                });
+            }
+        }
+
+        for (let lossitem of tradedatum.lossitems) {
+            if (lossitem) {
+                data[tradedatum.tradeid].lossitems.push({
+                    'itemid': lossitem.itemid,
+                    'quantity': lossitem.quantity,
+                    'name': itemdata[lossitem.itemid].name,
+                    'imageurl': itemdata[lossitem.itemid].imageurl
+                });
+            }
+        }
+    }
+    tradeData = data;
+    // window.console.log(data);
+};
+
+const setTradePreview = (hashcode) => {
+    // window.console.log(tradeData);
+    let selecteditem = {};
+    for (let tradeinfo of Object.entries(tradeData)) {
+        if (tradeinfo[1].hashcode == hashcode) {
+            selecteditem = tradeinfo[1];
+            break;
+        }
+    }
+    let tradepreviewnode = document.querySelector('.tiny-stash-trade-preview');
+    AddItem.removeChildren(tradepreviewnode);
+    Templates.render('tiny_stash/trade-preview', selecteditem).then((html, js) => {
+        Templates.replaceNodeContents(tradepreviewnode, html, js);
+    });
+    window.console.log(selecteditem);
 };
 
 const getDropData = async (contextid) => {
