@@ -56,13 +56,7 @@ const displayDialogue = async(editor) => {
     let contextid = getContextId(editor);
     let data = await getDropData(contextid);
     let courseid = getCourseId(editor);
-    let itemdata = await getItemData(courseid);
-    if (itemdata.items) {
-        itemdata.items.forEach((item) => {
-            itemsData[item.id] = item;
-        });
-    }
-    // window.console.log(data);
+    await updateItems(courseid);
     formatTradeInformation(data.trades, itemsData);
 
     const modalPromises = await ModalFactory.create({
@@ -129,18 +123,15 @@ const displayDialogue = async(editor) => {
             }
             if (AddItem.getStatus() == 'Saved') {
                 // Reload the drop list.
-                itemsData = {};
-                itemdata = await getItemData(courseid);
-                itemdata.items.forEach((item) => {
-                    itemsData[item.id] = item;
-                });
+                updateItems(courseid);
                 AddItem.setStatus('Clear');
             }
 
             if (AddTrade.getStatus() == 'Saved') {
                 // Reload the trade select element.
+                await updateItems(courseid);
                 data = await getDropData(contextid);
-                window.console.log(data);
+                formatTradeInformation(data.trades, itemsData);
                 Templates.render('tiny_stash/local/selectors/trade-drop-selector', data).then((html, js) => {
                     let selectnode = document.querySelector('.tiny-stash-trade-select');
                     Templates.replaceNodeContents(selectnode, html, js);
@@ -152,6 +143,7 @@ const displayDialogue = async(editor) => {
                             let codearea = document.getElementsByClassName('tiny-stash-trade-code');
                             let dropcode = "[stashtrade secret=\"" + option.dataset.hash + "\"]";
                             codearea[0].innerText = dropcode;
+                            setTradePreview(option.dataset.hash);
                         }
                     }
                 });
@@ -185,6 +177,16 @@ const displayDialogue = async(editor) => {
             setTradePreview(element.dataset.hash);
         }
     });
+};
+
+const updateItems = async (courseid) => {
+    itemsData = {};
+    let itemdata = await getItemData(courseid);
+    if (itemdata.items) {
+        itemdata.items.forEach((item) => {
+            itemsData[item.id] = item;
+        });
+    }
 };
 
 const addDropListener = (editor) => {
