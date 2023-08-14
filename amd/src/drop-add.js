@@ -23,6 +23,7 @@
 import $ from 'jquery';
 import Templates from 'core/templates';
 import {getCourseId} from 'tiny_stash/options';
+import {getSuggestedLocation} from 'tiny_stash/options';
 import * as WebService from 'tiny_stash/webservice-calls';
 
 let ItemsData = {};
@@ -48,6 +49,7 @@ export const init = (itemsData, editor) => {
     if (data.items.length === 1) {
         data.oneonly = true;
     }
+    data.suggestedlocation = getSuggestedLocation(editor);
 
     if (areanode) {
         Templates.render('tiny_stash/stash-drop-form', data).then((html, js) => {

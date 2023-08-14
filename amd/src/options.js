@@ -26,6 +26,7 @@ import {pluginName} from 'tiny_stash/common';
 
 const permissionsName = getPluginOptionName(pluginName, 'canmanage');
 const courseId = getPluginOptionName(pluginName, 'courseid');
+const suggestedLocation = getPluginOptionName(pluginName, 'suggestedlocation');
 
 /**
  * Register the options for the Tiny H5P plugin.
@@ -42,6 +43,10 @@ export const register = (editor) => {
     registerOption(courseId, {
         processor: 'number',
         "default": 0
+    });
+    registerOption(suggestedLocation, {
+        processor: 'string',
+        "default": ''
     });
 };
 /**
@@ -68,4 +73,6 @@ export const getCourseId = (editor) => {
     return editor.options.get(courseId);
 };
 
-
+export const getSuggestedLocation = (editor) => {
+    return editor.options.get(suggestedLocation);
+};
