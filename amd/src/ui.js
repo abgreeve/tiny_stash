@@ -30,6 +30,7 @@ import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
 import * as AddItem from 'tiny_stash/additem';
 import * as AddTrade from 'tiny_stash/addtrade';
+import * as Help from 'tiny_stash/helptabs';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 import * as WebService from 'tiny_stash/webservice-calls';
 import {get_string as getString} from 'core/str';
@@ -77,6 +78,8 @@ const displayDialogue = async(editor) => {
     });
 
     $root.on(ModalEvents.bodyRendered, () => {
+        Help.init();
+        addTabListeners();
         addDropListener(editor);
 
         // Add a listener for the appearance select box.
@@ -187,6 +190,27 @@ const updateItems = async (courseid) => {
             itemsData[item.id] = item;
         });
     }
+};
+
+const addTabListeners = () => {
+    const tabnodes = document.querySelectorAll('.tiny-stash-tabs');
+    tabnodes.forEach((tabnode) => {
+        tabnode.addEventListener('click', (e) => {
+            const tabname = e.currentTarget.children[0].attributes['id'].value;
+            if (tabname == 'help-tab') {
+                return;
+            }
+            const savenode = document.querySelector('button[data-action="save"]');
+            if (!savenode) {
+                Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
+                    let modalfooter = document.querySelector('.modal-footer');
+                    // Remove existing buttons.
+                    AddItem.removeChildren(modalfooter);
+                    Templates.appendNodeContents(modalfooter, html, js);
+                });
+            }
+        });
+    });
 };
 
 const addDropListener = (editor) => {
@@ -353,11 +377,9 @@ const formatTradeInformation = (tradedata, itemdata) => {
         }
     }
     tradeData = data;
-    // window.console.log(data);
 };
 
 const setTradePreview = (hashcode) => {
-    // window.console.log(tradeData);
     let selecteditem = {};
     for (let tradeinfo of Object.entries(tradeData)) {
         if (tradeinfo[1].hashcode == hashcode) {
@@ -370,7 +392,6 @@ const setTradePreview = (hashcode) => {
     Templates.render('tiny_stash/trade-preview', selecteditem).then((html, js) => {
         Templates.replaceNodeContents(tradepreviewnode, html, js);
     });
-    window.console.log(selecteditem);
 };
 
 const getDropData = async (contextid) => {

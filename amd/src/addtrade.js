@@ -30,6 +30,7 @@ import * as AddItem from 'tiny_stash/additem';
 let CourseId = 0;
 let Status = 'ready';
 export let TradeHash = '';
+let Footerlistenerenabled = false;
 
 export const init = (editor) => {
     let contextid = getContextId(editor);
@@ -45,6 +46,7 @@ export const init = (editor) => {
             $('.carousel').carousel(1);
             $('.carousel').carousel('pause');
             let location = e.currentTarget.dataset.location;
+            Footerlistenerenabled = false;
             AddItem.init(editor, location);
         });
     });
@@ -72,7 +74,6 @@ export const init = (editor) => {
                 nodes.remove();
             }
 
-            // window.console.log(AddItem.getStatus());
             addFooterListeners();
             // check additem status
             let newitem = AddItem.getItem();
@@ -100,7 +101,6 @@ export const init = (editor) => {
                 });
             }
             AddItem.setStatus('Clear');
-            window.console.log(newitem);
         }
     });
 };
@@ -142,14 +142,21 @@ const deleteItem = (element) => {
  * Add listeners to the footer buttons.
  */
 const addFooterListeners = () => {
+    // For some reason slid.bs.carousel gets fired more than once depending on how often you've visited this page.
+    // So to avoid adding listeners more than once, we check first.
+    if (Footerlistenerenabled) {
+        return;
+    }
     let backbutton = document.querySelector('button[data-action="back"]');
     backbutton.addEventListener('click', (e) => {
-        shiftBack(e);
+        e.preventDefault();
+        moveBack(e);
     });
     let addbutton = document.querySelector('button[data-action="add"]');
     addbutton.addEventListener('click', (e) => {
         saveTrade(e);
     });
+    Footerlistenerenabled = true;
 };
 
 /**
@@ -157,10 +164,11 @@ const addFooterListeners = () => {
  *
  * @param {event} e - The related event.
  */
-const shiftBack = (e) => {
+const moveBack = (e) => {
     e.preventDefault();
     $('.carousel').carousel(0);
-    $('.carousel').carousel('pause');
+    let slider = $('.carousel').carousel();
+    slider.carousel('pause');
     // Clear this page.
     let areanode = document.querySelector('.tiny-stash-trade');
     removeChildren(areanode);
@@ -175,7 +183,6 @@ const shiftBack = (e) => {
 
 const saveTrade = (e) => {
     let formdata = document.querySelector('.tiny-stash-trade form');
-    // window.console.log(formdata);
     let allitems = formdata.querySelectorAll('.block-stash-quantity');
     let additems = [];
     let lossitems = [];
@@ -197,11 +204,9 @@ const saveTrade = (e) => {
         'additems' : additems,
         'lossitems' : lossitems,
     };
-    // window.console.log(data);
     WebService.createTrade(data).then((result) => {
         TradeHash = result;
         setStatus('Saved');
-        shiftBack(e);
-        // window.console.log(result);
+        moveBack(e);
     });
 };
