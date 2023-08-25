@@ -127,6 +127,7 @@ const displayDialogue = async(editor) => {
                         Templates.appendNodeContents(parentnode, html, js);
                         // Add back the listeners for the drop form.
                         addAppearanceListener();
+                        addTextAndImageListener();
                     });
                 }
 
@@ -151,8 +152,11 @@ const displayDialogue = async(editor) => {
                         // Add the message about creating a location.
                         const contentnode = document.querySelector('.tiny-stash-zero-state');
                         AddItem.removeChildren(contentnode);
+                        const messageheader = document.createElement('h3');
+                        messageheader.innerText = await getString('locationneeded', 'tiny_stash');
                         const messagenode = document.createElement('p');
                         messagenode.innerText = await getString('nolocations', 'tiny_stash');
+                        contentnode.appendChild(messageheader);
                         contentnode.appendChild(messagenode);
                         // enable the location button.
                         document.querySelector('.tiny-stash-add-drop').attributes.removeNamedItem('disabled');

@@ -35,12 +35,14 @@
     </div>
 </nav>
 {{#itemempty}}
-<div class="tiny-stash-zero-state">
-<p>No items dude.</p>
+<div class="tiny-stash-zero-state zero-state text-center my-6">
+<h3>{{#str}}noitems, tiny_stash{{/str}}</h3>
+<p>{{#str}}createitems, tiny_stash{{/str}}</p>
 </div>
 {{/itemempty}}
 {{#dropempty}}
-<div class="tiny-stash-zero-state">
+<div class="tiny-stash-zero-state zero-state text-center my-6">
+<h3>{{#str}}locationneeded, tiny_stash{{/str}}</h3>
 <p>{{#str}}nolocations, tiny_stash{{/str}}</p>
 </div>
 {{/dropempty}}
