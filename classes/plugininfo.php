@@ -36,7 +36,13 @@ class plugininfo extends plugin implements
 
     public static function is_enabled(context $context, array $options, array $fpoptions, ?\editor_tiny\editor $editor = null): bool {
         // Users must have permission to embed content.
-        return true;
+        // Check that stash is enabled on this course.
+        $courseid = self::get_courseid_from_context($context);
+        if (!$courseid) {
+            return false;
+        }
+        $manager = \block_stash\manager::get($courseid);
+        return $manager->is_enabled();
     }
 
     public static function get_available_buttons(): array {
@@ -51,17 +57,27 @@ class plugininfo extends plugin implements
         ];
     }
 
-    public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
-            ?\editor_tiny\editor $editor = null): array {
-        global $USER, $PAGE;
-
-        // Get the course context to get the stash manager.
+    private static function get_courseid_from_context(context $context): int {
         while ($context->contextlevel != CONTEXT_COURSE) {
             if ($context->contextlevel == CONTEXT_SYSTEM) {
                 break;
             }
             $context = $context->get_parent_context();
         }
+
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            return 0;
+        } else {
+            return $context->instanceid;
+        }
+    }
+
+
+    public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
+            ?\editor_tiny\editor $editor = null): array {
+        global $USER, $PAGE;
+
+        $courseid = self::get_courseid_from_context($context);
 
         // navigation may be the key.
         $navbar = $PAGE->navbar->get_items();
@@ -74,11 +90,10 @@ class plugininfo extends plugin implements
             }
         }
 
-        if ($context->contextlevel == CONTEXT_SYSTEM) {
+        if ($courseid == 0) {
             $permissions = false;
-            $courseid = 0;
         } else {
-            $manager = \block_stash\manager::get($context->instanceid);
+            $manager = \block_stash\manager::get($courseid);
             $permissions = $manager->can_manage($USER->id);
             $courseid = $manager->get_courseid();
         }

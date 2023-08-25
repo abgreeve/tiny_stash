@@ -60,6 +60,14 @@ const displayDialogue = async(editor) => {
     await updateItems(courseid);
     formatTradeInformation(data.trades, itemsData);
 
+    if (Object.keys(itemsData).length == 0) {
+        data.itemempty = true;
+    } else if (data.items.length == 0) {
+        data.dropempty = true;
+    } else {
+        data.normal = true;
+    }
+
     const modalPromises = await ModalFactory.create({
         title: getString('modalheading', 'tiny_stash'),
         type: ModalFactory.types.SAVE_CANCEL,
@@ -83,8 +91,10 @@ const displayDialogue = async(editor) => {
         addDropListener(editor);
 
         // Add a listener for the appearance select box.
-        addAppearanceListener();
-        addTextAndImageListener();
+        if (data.normal) {
+            addAppearanceListener();
+            addTextAndImageListener();
+        }
 
         let additembuttons = document.querySelectorAll('.tiny-stash-add-item');
         for (let additembutton of additembuttons) {
@@ -106,9 +116,20 @@ const displayDialogue = async(editor) => {
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.getStatus() == 'Saved') {
-                // window.console.log(DropAdd.SavedIndex);
                 // Reload the drop list.
                 data = await getDropData(contextid);
+                const zerostatenode = document.querySelector('.tiny-stash-zero-state');
+                if (zerostatenode) {
+                    // We now have a location we can add the drop form.
+                    Templates.render('tiny_stash/local/tabs/drop-form', data).then((html, js) => {
+                        const parentnode = zerostatenode.parentNode;
+                        parentnode.removeChild(zerostatenode);
+                        Templates.appendNodeContents(parentnode, html, js);
+                        // Add back the listeners for the drop form.
+                        addAppearanceListener();
+                    });
+                }
+
                 Templates.render('tiny_stash/drop-select', data).then((html, js) => {
                     let selectnode = document.querySelector('.tiny-stash-drop-select');
                     Templates.replaceNodeContents(selectnode, html, js);
@@ -120,13 +141,27 @@ const displayDialogue = async(editor) => {
                             setPreview(option.dataset.id, option.dataset.hash);
                         }
                     }
-                    addDropListener(editor);
                 });
                 DropAdd.setStatus('Clear');
             }
             if (AddItem.getStatus() == 'Saved') {
+                if (data.itemempty) {
+                    if (data.items.length == 0) {
+                        data.dropempty = true;
+                        // Add the message about creating a location.
+                        const contentnode = document.querySelector('.tiny-stash-zero-state');
+                        AddItem.removeChildren(contentnode);
+                        const messagenode = document.createElement('p');
+                        messagenode.innerText = await getString('nolocations', 'tiny_stash');
+                        contentnode.appendChild(messagenode);
+                        // enable the location button.
+                        document.querySelector('.tiny-stash-add-drop').attributes.removeNamedItem('disabled');
+                    }
+                    data.itemempty = false;
+                }
                 // Reload the drop list.
                 updateItems(courseid);
+                // To be set in the hid section
                 AddItem.setStatus('Clear');
             }
 

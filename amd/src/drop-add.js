@@ -149,7 +149,7 @@ const saveLocation = (e) => {
     WebService.createDrop(courseid, data).then((hashcode) => {
         SavedIndex = hashcode;
         Status = 'Saved';
-        shiftBack(e);
+        returnBack(e);
     });
 };
 
@@ -159,7 +159,7 @@ const saveLocation = (e) => {
 const addFooterListeners = () => {
     let backbutton = document.querySelector('button[data-action="back"]');
     backbutton.addEventListener('click', (e) => {
-        shiftBack(e);
+        returnBack(e);
     });
     let addbutton = document.querySelector('button[data-action="add"]');
     addbutton.addEventListener('click', (e) => {
@@ -172,13 +172,15 @@ const addFooterListeners = () => {
  *
  * @param {event} e - The related event.
  */
-const shiftBack = (e) => {
+const returnBack = (e) => {
     e.preventDefault();
+    let areanode = document.querySelector('.tiny-stash-location');
+    window.console.log(areanode);
+    removeChildren(areanode);
+
     $('.carousel').carousel(0);
     $('.carousel').carousel('pause');
     // Clear this page.
-    let areanode = document.querySelector('.tiny-stash-location');
-    removeChildren(areanode);
     // Replace footer.
     Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
         let modalfooter = document.querySelector('.modal-footer');
