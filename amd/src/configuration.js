@@ -26,11 +26,19 @@ import {
     addMenubarItem,
     addToolbarButton,
 } from 'editor_tiny/utils';
+import config from 'core/config';
 
 export const configure = (instanceConfig) => {
-    // Update the instance configuration to add the H5P menu option to the menus and toolbars.
     return {
         toolbar: addToolbarButton(instanceConfig.toolbar, 'content', buttonName),
         menu: addMenubarItem(instanceConfig.menu, 'insert', buttonName),
+
+        // Mildly abusive. Because the Tiny editor is in an iframe, it doesn't have
+        // access to all the styles in the main page. It's possible to grab the styles
+        // for a specific component by (ab)using styles_debug. So we use that to inject
+        // the block_stash stylesheet in to the editor iframe.
+        content_css: instanceConfig.content_css.concat(
+            [config.wwwroot + "/theme/styles_debug.php?theme=" + config.theme + "&type=plugin&subtype=block_stash"]
+        )
     };
 };

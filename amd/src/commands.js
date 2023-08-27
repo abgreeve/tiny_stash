@@ -22,7 +22,7 @@
  */
 
 import {getButtonImage} from 'editor_tiny/utils';
-import {handleAction} from './ui';
+import {handleAction, handleInit, handleSubmit} from './ui';
 import {get_string as getString} from 'core/str';
 import {
     component,
@@ -70,5 +70,8 @@ export const getSetup = async() => {
             text: buttonText,
             onAction: () => handleAction(editor),
         });
+
+        editor.on("init", handleInit(editor));
+        editor.on("Submit", handleSubmit(editor));
     };
 };

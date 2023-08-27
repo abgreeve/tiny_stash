@@ -25,7 +25,7 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import {getContextId} from 'editor_tiny/options';
-import {getCourseId} from 'tiny_stash/options';
+import {getCourseId, getShortCodes, getItemDataFromEditor, getTradeDataFromEditor} from 'tiny_stash/options';
 import $ from 'jquery';
 import * as DropAdd from 'tiny_stash/drop-add';
 import * as AddItem from 'tiny_stash/additem';
@@ -34,6 +34,7 @@ import * as Help from 'tiny_stash/helptabs';
 import SnippetMaker from 'tiny_stash/local/classes/snippetmaker';
 import * as WebService from 'tiny_stash/webservice-calls';
 import {get_string as getString} from 'core/str';
+import { getDropDataFromEditor } from './options';
 
 let itemsData = {};
 let tradeData = {};
@@ -45,6 +46,107 @@ let Snippet = {};
  */
 export const handleAction = (editor) => {
     displayDialogue(editor);
+};
+
+export const handleInit = editor => async () => {
+    // NB: This function updates tradeData in the global scope.
+    // tradeData is used below in hashcodetotrade.
+    formatTradeInformation(getTradeDataFromEditor(editor), getItemDataFromEditor(editor));
+
+    // These mappings associate shortcodes to objects which contain the necessary information
+    // to render a template.
+    const hashcodetoitem = Object.values(getDropDataFromEditor(editor)).reduce((c, v) => ({ ...c, [v.hashcode]: v }), {});
+    const hashcodetotrade = Object.values(tradeData).reduce((c, v) => ({ ...c, [v.hashcode]: v }), {});
+    const allhashcodes = [...Object.keys(hashcodetoitem), ...Object.keys(hashcodetotrade)];
+
+    const templategetters = {
+        stashdrop: data => ({
+            template: "tiny_stash/item-preview",
+            context: { ...data, ...(data.image ? { image: hashcodetoitem[data.secret].imageurl } : {}) }
+        }),
+        stashtrade: data => ({ template: "tiny_stash/trade-preview", context: { ...hashcodetotrade[data.secret] } })
+    };
+
+    const shortcodes = getShortCodes(editor).filter(shortcode => templategetters.hasOwnProperty(shortcode));
+    const shortcodetopromise = shortcode => {
+        const data = shortcode.matchAll(/(\w+)(?:=?"([^"]*)")?/g).reduce((c, v) => ({ ...c, ...{[v[1]]: v[2] ?? v[1]}}), {});
+
+        // This can happen when an item has been inserted but then later deleted
+        // via the stash settings. We can't render it in this case (as it's deleted)
+        // so instead just return the shortcode.
+        if (!allhashcodes.includes(data.secret)) {
+            return Promise.resolve(shortcode);
+        }
+
+        const {template, context} = templategetters[Object.keys(data)[0]](data);
+        return Templates.renderForPromise(template, {shortcode: shortcode, ...context}).then(preview => preview.html);
+    };
+
+    // Mildly obscure code warning. Normally when you use a regex to split
+    // a string, the match itself is not included in the resulting array.
+    //
+    // From MDN docs:
+    //     When found, separator is removed from the string, and the
+    //     substrings are returned in an array.
+    //
+    // By adding the ( ) around the pattern, the match itself is not included
+    // but the capture group (which is the entire matched string) is spliced
+    // in to the array.
+    //
+    // From MDN docs:
+    //     If separator is a regular expression with capturing groups, then
+    //     each time separator matches, the captured groups (including any
+    //     undefined results) are spliced into the output array. This
+    //     behavior is specified by the regexp's Symbol.split method.
+    const regex = new RegExp(`((?:<p>){0,1}\\[(?:${shortcodes.join('|')})[^\\]]*\](?:<\\/p>){0,1})`);
+    const promises = editor.getContent().split(regex).map(segment => {
+        const trimmed = segment.replace(/^<p>|<\/p>$/g, '');
+        const isshortcode = shortcodes.reduce((c, v) => c || (trimmed.startsWith(`[${v}`) && trimmed.endsWith(']')), false);
+
+        return isshortcode ? shortcodetopromise(trimmed) : Promise.resolve(segment);
+    });
+
+    Promise.all(promises).then(rendered => editor.setContent(rendered.join('')));
+};
+
+export const handleSubmit = editor => () => {
+    const tempcontainer = document.createElement('div');
+    const content = editor.getContent();
+    tempcontainer.innerHTML = content;
+
+    tempcontainer.querySelectorAll('.tiny-stash-preview').forEach(stashitem => {
+        const shortcode = stashitem.querySelectorAll('.tiny-stash-shortcode')[0].textContent;
+        stashitem.replaceWith(shortcode);
+    });
+
+    tempcontainer.querySelectorAll('.tiny-stash-trade-preview').forEach(trade => {
+        const shortcode = trade.querySelectorAll('.tiny-stash-shortcode')[0].textContent;
+        trade.replaceWith(shortcode);
+    });
+
+    // TinyMCE does this weird thing where it leaves HTML like:
+    //
+    // <p style="top: 8px;" data-mce-caret="after" data-mce-bogus="all">
+    //
+    // when the caret is present after an item with contenteditable="false"
+    //
+    // getContent() is __supposed__ to remove these "internal" nodes before
+    // returning the string - but it doesn't seem to work all the time and
+    // there's at least one bug report that seems possibly related:
+    //
+    // https://github.com/tinymce/tinymce/issues/8032
+    //
+    // All of the problematic nodes that I've observed have the data-mce-bogus
+    // attribute, so we just strip those out here.
+    tempcontainer.querySelectorAll('[data-mce-bogus]').forEach(node => node.parentNode.removeChild(node));
+
+    // Only update the editor content to shortcodes when there are no validation
+    // errors. If we don't do this then the content will be updated, but the form
+    // won't submit and the user will be left looking at just shortcodes.
+    if (editor.getElement().closest('form').querySelector('.form-control.is-invalid') === null) {
+        editor.setContent(tempcontainer.innerHTML);
+        editor.save();
+    }
 };
 
 /**
@@ -82,8 +184,6 @@ const displayDialogue = async(editor) => {
     modalPromises.show();
     const $root = await modalPromises.getRoot();
     const root = $root[0];
-
-    let savedata = {};
 
     $root.on(ModalEvents.hidden, () => {
         modalPromises.destroy();
@@ -197,9 +297,6 @@ const displayDialogue = async(editor) => {
                         let option = selectitemnode.options[i];
                         if (option.dataset.hash == AddTrade.TradeHash) {
                             option.selected = true;
-                            let codearea = document.getElementsByClassName('tiny-stash-trade-code');
-                            let dropcode = "[stashtrade secret=\"" + option.dataset.hash + "\"]";
-                            codearea[0].innerText = dropcode;
                             setTradePreview(option.dataset.hash);
                         }
                     }
@@ -211,14 +308,10 @@ const displayDialogue = async(editor) => {
 
     $root.on(ModalEvents.save, () => {
         let activetab = document.querySelector('[aria-selected="true"][data-tiny-stash]');
-        let codearea = '';
-        if (activetab.getAttribute('aria-controls') == 'items') {
-            codearea = document.getElementsByClassName('tiny-stash-item-code');
-        } else {
-            codearea = document.getElementsByClassName('tiny-stash-trade-code');
-        }
-        savedata.codearea = codearea[0].innerText;
-        editor.execCommand('mceInsertContent', false, savedata.codearea);
+        const previewnodeclasssuffix = activetab.getAttribute('aria-controls') == 'items' ? 'preview' : 'trade-preview';
+        const previewnode = document.querySelector('.tiny-stash-' + previewnodeclasssuffix).cloneNode(true);
+
+        editor.execCommand('mceInsertContent', false, previewnode.outerHTML);
     });
 
     root.addEventListener('click', (event) => {
@@ -343,7 +436,6 @@ const setPreview = (itemid, hashcode) => {
     Snippet = new SnippetMaker(hashcode, itemsData[itemid].name);
     Snippet.setText(buttontext);
 
-    updatePreview(itemid, appearanceselector.value);
     if (appearanceselector.value === 'imageandbutton') {
         codearea[0].innerText = Snippet.getImageAndText();
     } else if (appearanceselector.value === 'image') {
@@ -352,47 +444,17 @@ const setPreview = (itemid, hashcode) => {
         codearea[0].innerText = Snippet.getText();
     }
 
-};
+    let previewnode = document.querySelector('#item .preview');
+    previewnode.children.forEach(child => previewnode.removeChild(child));
+    const templatedata = {
+        'image': ['imageandbutton', 'image'].includes(appearanceselector.value) ? itemsData[itemid].imageurl : null,
+        'text': ['imageandbutton', 'text'].includes(appearanceselector.value) ? buttontext : null,
+        'shortcode': codearea[0].innerText
+    };
 
-/**
- * Update the preview image.
- *
- * @param {int} itemid
- * @param {string} previewtype
- */
-const updatePreview = (itemid, previewtype) => {
-    let previewnode = document.querySelector('.preview');
-    previewnode.children.forEach((child) => { previewnode.removeChild(child); });
-
-    let wrappingdiv = document.createElement('div');
-    wrappingdiv.classList.add('block-stash-item');
-
-    if (previewtype === 'text') {
-        let textanchour = document.createElement('a');
-        textanchour.setAttribute('href', '#');
-        textanchour.innerText = document.querySelector('input[name="label"]').value;
-        wrappingdiv.appendChild(textanchour);
-    } else {
-        // Image and text
-        let imagediv = document.createElement('div');
-        imagediv.classList.add('item-image');
-        imagediv.style.backgroundImage = 'url(' + itemsData[itemid].imageurl + ')';
-        if (previewtype === 'imageandbutton') {
-            let buttondiv = document.createElement('div');
-            buttondiv.classList.add('item-action');
-            let button = document.createElement('button');
-            button.classList.add('btn', 'btn-secondary', 'tiny-stash-button-preview');
-            button.setAttribute('disabled', true);
-            let temp = document.querySelector('input[name="actiontext"]');
-            button.innerHTML = temp.value;
-            buttondiv.appendChild(button);
-            wrappingdiv.appendChild(imagediv);
-            wrappingdiv.appendChild(buttondiv);
-        } else {
-            wrappingdiv.appendChild(imagediv);
-        }
-    }
-    previewnode.appendChild(wrappingdiv);
+    Templates.renderForPromise('tiny_stash/item-preview', templatedata).then(preview => {
+        Templates.replaceNodeContents(previewnode, preview.html, preview.js);
+    });
 };
 
 const formatTradeInformation = (tradedata, itemdata) => {
@@ -434,16 +496,20 @@ const formatTradeInformation = (tradedata, itemdata) => {
 };
 
 const setTradePreview = (hashcode) => {
+    let codearea = document.getElementsByClassName('tiny-stash-trade-code');
+    let dropcode = "[stashtrade secret=\"" + hashcode + "\"]";
     let selecteditem = {};
+
+    codearea[0].innerText = dropcode;
     for (let tradeinfo of Object.entries(tradeData)) {
         if (tradeinfo[1].hashcode == hashcode) {
             selecteditem = tradeinfo[1];
             break;
         }
     }
-    let tradepreviewnode = document.querySelector('.tiny-stash-trade-preview');
+    let tradepreviewnode = document.querySelector('#trade .preview');
     AddItem.removeChildren(tradepreviewnode);
-    Templates.render('tiny_stash/trade-preview', selecteditem).then((html, js) => {
+    Templates.render('tiny_stash/trade-preview', {...selecteditem, shortcode: dropcode}).then((html, js) => {
         Templates.replaceNodeContents(tradepreviewnode, html, js);
     });
 };
