@@ -36,6 +36,7 @@ export const init = (editor) => {
     let contextid = getContextId(editor);
     CourseId = getCourseId(editor);
     let courseid = CourseId;
+    Footerlistenerenabled = false;
 
     let areanode = document.querySelector('.tiny-stash-trade');
     Templates.render('tiny_stash/local/nav/trade-nav', {}).then((html, js) => {
@@ -142,6 +143,8 @@ const deleteItem = (element) => {
  * Add listeners to the footer buttons.
  */
 const addFooterListeners = () => {
+    window.console.log('just jiving');
+    window.console.log('listeners: ' + Footerlistenerenabled);
     // For some reason slid.bs.carousel gets fired more than once depending on how often you've visited this page.
     // So to avoid adding listeners more than once, we check first.
     if (Footerlistenerenabled) {
@@ -175,6 +178,7 @@ const moveBack = (e) => {
     // Replace footer.
     Templates.render('tiny_stash/local/footers/main-footer', {}).then((html, js) => {
         let modalfooter = document.querySelector('.modal-footer');
+        // Footerlistenerenabled = false;
         // Remove existing buttons.
         removeChildren(modalfooter);
         Templates.appendNodeContents(modalfooter, html, js);

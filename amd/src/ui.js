@@ -68,6 +68,10 @@ const displayDialogue = async(editor) => {
         data.normal = true;
     }
 
+    // Need the same information for trades
+    data.tradeavailable = (data.trades.length > 0);
+    window.console.log(data);
+
     const modalPromises = await ModalFactory.create({
         title: getString('modalheading', 'tiny_stash'),
         type: ModalFactory.types.SAVE_CANCEL,
@@ -174,6 +178,17 @@ const displayDialogue = async(editor) => {
                 await updateItems(courseid);
                 data = await getDropData(contextid);
                 formatTradeInformation(data.trades, itemsData);
+
+                const zerostatenode = document.querySelector('.tiny-stash-zero-state-trade');
+                if (zerostatenode) {
+                    // We now have a location we can add the trade form.
+                    Templates.render('tiny_stash/local/tabs/trade-form', data).then((html, js) => {
+                        const parentnode = zerostatenode.parentNode;
+                        parentnode.removeChild(zerostatenode);
+                        Templates.appendNodeContents(parentnode, html, js);
+                    });
+                }
+
                 Templates.render('tiny_stash/local/selectors/trade-drop-selector', data).then((html, js) => {
                     let selectnode = document.querySelector('.tiny-stash-trade-select');
                     Templates.replaceNodeContents(selectnode, html, js);

@@ -33,13 +33,12 @@
         </div>
     </div>
 </nav>
-<form>
-    <div class="input-group tiny-stash-trade-select pt-2">
-        {{> tiny_stash/local/selectors/trade-drop-selector}}
-    </div>
-    <div class="tiny-stash-trade-preview px-2 py-2"></div>
-    <div class="tiny-stash-trade-code bg-light text-muted mt-2 px-2 py-2 border">
-    </div>
-    <!-- Show selected thing -->
-    <!-- Provide options related to this thing -->
-</form>
+{{^tradeavailable}}
+<div class="tiny-stash-zero-state-trade zero-state text-center my-6">
+<h3>{{#str}}notrades, tiny_stash{{/str}}</h3>
+<p>{{#str}}addtrades, tiny_stash{{/str}}</p>
+</div>
+{{/tradeavailable}}
+{{#tradeavailable}}
+{{> tiny_stash/local/tabs/trade-form}}
+{{/tradeavailable}}
