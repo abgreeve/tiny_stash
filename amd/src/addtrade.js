@@ -143,8 +143,6 @@ const deleteItem = (element) => {
  * Add listeners to the footer buttons.
  */
 const addFooterListeners = () => {
-    window.console.log('just jiving');
-    window.console.log('listeners: ' + Footerlistenerenabled);
     // For some reason slid.bs.carousel gets fired more than once depending on how often you've visited this page.
     // So to avoid adding listeners more than once, we check first.
     if (Footerlistenerenabled) {

@@ -8,7 +8,7 @@ Features
 
 - Create items, locations, and trades in the editor
 - The direct insert of codes means no messing around with copy and pasting
-- The editor shows the stash item or trade in the editor instead of a cryptic shortcode
+
 
 Requirements
 ------------
