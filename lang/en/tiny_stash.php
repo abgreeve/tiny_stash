@@ -67,6 +67,7 @@ $string['nolocations'] = 'Please create a location to configure here, before bei
 $string['notrades'] = 'You currently have no trades created';
 $string['pickup'] = 'Pick up!';
 $string['pluginname'] = 'Tiny stash';
+$string['privacy:metadata'] = 'This plugin stores no user data';
 $string['snippetinserter'] = 'Snippet inserter';
 $string['supplies'] = 'Supplies';
 $string['tradehelp'] = 'Trades are a widget that allows students to hand in items in exchange for something else.';
