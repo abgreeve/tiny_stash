@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023102000;
+$plugin->version   = 2023102300;
 $plugin->requires  = 2022112805;
 $plugin->component = 'tiny_stash';
-$plugin->release = '1.0.0';
+$plugin->release = '1.0.1';
 $plugin->dependencies = ['block_stash' => 2022042102, 'filter_shortcodes' => 2022121200];
