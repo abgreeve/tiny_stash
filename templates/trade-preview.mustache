@@ -1,4 +1,4 @@
-<div class="block-stash-trade" title="{{trade.name}}" id="block-stash-trade-id-{{trade.id}}" data-id="{{trade.id}}">
+<div class="block-stash-trade tiny-stash-trade-preview" title="{{trade.name}}" id="block-stash-trade-id-{{trade.id}}" data-id="{{trade.id}}" contenteditable="false">
     <div class="trade-label text-center py-1 px-1">{{name}}</div>
         <div>
             <div style="display: flex">
@@ -23,5 +23,5 @@
     <div class="accept-trade text-xs-center py-2">
         <center><button disabled class="btn btn-secondary">{{#str}}accept, block_stash{{/str}}</button></center>
     </div>
-
+    {{#shortcode}}<div class="tiny-stash-shortcode" style="display: none;">{{shortcode}}</div>{{/shortcode}}
 </div>
