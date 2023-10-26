@@ -401,13 +401,17 @@ const addTextAndImageListener = () => {
         if (!document.querySelector('.block-stash-item')) {
             return;
         }
+
+        let previewnode = document.querySelector('#item .preview');
         let buttontext = e.currentTarget.value;
-        let previewbutton = document.querySelector('.tiny-stash-button-preview');
+        let previewbutton = previewnode.querySelector('.tiny-stash-button-preview');
         previewbutton.innerText = buttontext;
         // Update the snippet text.
-        let codearea = document.getElementsByClassName('tiny-stash-item-code');
+        let codearea = document.querySelector('.tiny-stash-item-code');
+        let shortcodearea = previewnode.querySelector('.tiny-stash-shortcode');
         Snippet.setText(buttontext);
-        codearea[0].innerText = Snippet.getImageAndText();
+        codearea.innerText = Snippet.getImageAndText();
+        shortcodearea.innerText = Snippet.getImageAndText();
     });
 
     let labelnode = document.querySelector('input[name="label"]');
