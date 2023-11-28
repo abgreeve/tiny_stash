@@ -40,6 +40,10 @@ let itemsData = {};
 let tradeData = {};
 let Snippet = {};
 
+const TS_ITEM_PAGE = 1;
+const TS_DROP_PAGE = 2;
+const TS_TRADE_PAGE = 3;
+
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -203,10 +207,11 @@ const displayDialogue = async(editor) => {
         let additembuttons = document.querySelectorAll('.tiny-stash-add-item');
         for (let additembutton of additembuttons) {
             additembutton.addEventListener('click', (e) =>
-                shiftAndMove(e, 'next', AddItem, editor, e.currentTarget.dataset.location));
+                shiftAndMove(e, TS_ITEM_PAGE, AddItem, editor, e.currentTarget.dataset.location));
         }
 
-        document.querySelector('.tiny-stash-add-trade').addEventListener('click', (e) => shiftAndMove(e, 3, AddTrade, editor));
+        document.querySelector('.tiny-stash-add-trade').addEventListener('click', (e) =>
+            shiftAndMove(e, TS_TRADE_PAGE, AddTrade, editor));
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.getStatus() == 'Saved') {
@@ -352,7 +357,7 @@ const addTabListeners = () => {
 
 const addDropListener = (editor) => {
     document.getElementsByClassName('tiny-stash-add-drop')[0].addEventListener('click', (e) =>
-        shiftAndMove(e, 2, DropAdd, itemsData, editor));
+        shiftAndMove(e, TS_DROP_PAGE, DropAdd, itemsData, editor));
 };
 
 const addAppearanceListener = () => {
