@@ -202,21 +202,11 @@ const displayDialogue = async(editor) => {
 
         let additembuttons = document.querySelectorAll('.tiny-stash-add-item');
         for (let additembutton of additembuttons) {
-            additembutton.addEventListener('click', (e) => {
-                e.preventDefault();
-                $('.carousel').carousel('next');
-                $('.carousel').carousel('pause');
-                let location = e.currentTarget.dataset.location;
-                AddItem.init(editor, location);
-            });
+            additembutton.addEventListener('click', (e) =>
+                shiftAndMove(e, 'next', AddItem, editor, e.currentTarget.dataset.location));
         }
 
-        document.querySelector('.tiny-stash-add-trade').addEventListener('click', (e) => {
-            e.preventDefault();
-            $('.carousel').carousel(3);
-            $('.carousel').carousel('pause');
-            AddTrade.init(editor);
-        });
+        document.querySelector('.tiny-stash-add-trade').addEventListener('click', (e) => shiftAndMove(e, 3, AddTrade, editor));
 
         $('.carousel').on('slide.bs.carousel', async () => {
             if (DropAdd.getStatus() == 'Saved') {
@@ -361,14 +351,8 @@ const addTabListeners = () => {
 };
 
 const addDropListener = (editor) => {
-    let temp = document.getElementsByClassName('tiny-stash-add-drop');
-    temp[0].addEventListener('click', (e) => {
-        e.preventDefault();
-        $('.carousel').carousel(2);
-        $('.carousel').carousel('pause');
-        // init drop add page.
-        DropAdd.init(itemsData, editor);
-    });
+    document.getElementsByClassName('tiny-stash-add-drop')[0].addEventListener('click', (e) =>
+        shiftAndMove(e, 2, DropAdd, itemsData, editor));
 };
 
 const addAppearanceListener = () => {
@@ -516,6 +500,13 @@ const setTradePreview = (hashcode) => {
     Templates.render('tiny_stash/trade-preview', {...selecteditem, shortcode: dropcode}).then((html, js) => {
         Templates.replaceNodeContents(tradepreviewnode, html, js);
     });
+};
+
+const shiftAndMove = (e, carousellocation, func, ...args) => {
+    e.preventDefault();
+    $('.carousel').carousel(carousellocation);
+    $('.carousel').carousel('pause');
+    func.init(...args);
 };
 
 const getDropData = async (contextid) => {
