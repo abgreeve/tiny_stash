@@ -114,6 +114,9 @@ class plugininfo extends plugin implements
         } else {
             $manager = \block_stash\manager::get($courseid);
             $permissions = $manager->can_manage($USER->id);
+            if (!$permissions) {
+                return ['canmanage' => false];
+            }
             $courseid = $manager->get_courseid();
 
             // Shoutout to crmpicco for isset guidance.
