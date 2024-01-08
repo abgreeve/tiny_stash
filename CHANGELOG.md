@@ -1,7 +1,7 @@
 Tiny Stash
 ===========
 
-Version 1.0.3 (TBA)
+Version 1.0.3 (TBD)
 -------------------
 
 * Fixed a bug where students trying to view the TinyMCE editor would crash due to the student not having permission to view items.
