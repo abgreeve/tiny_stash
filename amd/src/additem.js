@@ -29,6 +29,7 @@ import {getContextId} from 'editor_tiny/options';
 import {getCourseId} from 'tiny_stash/options';
 import * as DropAdd from 'tiny_stash/drop-add';
 import {get_string as getString} from 'core/str';
+import * as itemGetter from 'block_stash/local/datasources/items-getter';
 
 let CourseId = 0;
 let Editor = {};
@@ -169,6 +170,7 @@ const saveItem = (event, aftersave) => {
     validateForm(submitdata).then((result) => {
         if (result) {
             WebService.createItem(CourseId, submitdata).then((itemdata) => {
+                itemGetter.resetCache();
                 Status = 'Saved';
                 if (aftersave == SAVELOCATION) {
                     addLocation(event, itemdata);

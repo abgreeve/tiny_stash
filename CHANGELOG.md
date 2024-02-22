@@ -5,6 +5,7 @@ Version 1.0.3 (TBD)
 -------------------
 
 * Fixed a bug where students trying to view the TinyMCE editor would crash due to the student not having permission to view items.
+* Updating item ajax calls to include a cache.
 
 
 Version 1.0.2 (25th October 2023)
