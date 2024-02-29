@@ -1,7 +1,7 @@
 Tiny Stash
 ===========
 
-Version 1.0.3 (TBD)
+Version 1.0.3 (29th February 2024)
 -------------------
 
 * Fixed a bug where students trying to view the TinyMCE editor would crash due to the student not having permission to view items.
