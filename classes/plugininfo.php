@@ -97,7 +97,7 @@ class plugininfo extends plugin implements
         // navigation may be the key.
         $navbar = $PAGE->navbar->get_items();
         $suggestedlocation = '';
-        while (count($navbar) >= 0) {
+        while (count($navbar) > 0) {
             $navitem = array_pop($navbar);
             if ($navitem->key != 'modedit') {
                 $suggestedlocation = $navitem->text;
