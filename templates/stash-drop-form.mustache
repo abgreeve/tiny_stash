@@ -1,8 +1,8 @@
 <form>
-    <div class="form-group">
+    <div class="input-group">
         <label>{{#str}}item, tiny_stash{{/str}}</label>
         {{^oneonly}}
-        <select class="form-control custom-select stash-item mr-sm-2">
+        <select class="form-control form-select stash-item me-sm-2">
             <option selected>{{#str}}choose, tiny_stash{{/str}}</option>
             {{#items}}
             <option value="{{id}}">{{name}}</option>
@@ -15,25 +15,25 @@
             {{/items}}
         {{/oneonly}}
     </div>
-    <div class="form-group">
+    <div class="input-group">
         <label>{{#str}}location, tiny_stash{{/str}}</label>
         <input type="text" class="form-control location-name" value="{{suggestedlocation}}" />
     </div>
-    <div class="form-group">
+    <div class="input-group">
         <div class="form-row align-items-end">
             <div class="col-auto my-1">
                 <label>{{#str}}supplies, tiny_stash{{/str}}</label>
                 <input type="number" class="form-control location-supplies" placeholder="1" value="1" min="1" />
             </div>
             <div class="col-auto my-1 d-flex align-items-end">
-                <div class="custom-control custom-checkbox mr-sm-2 mb-2">
-                    <input type="checkbox" class="custom-control-input" id="supplyunlimited" />
-                    <label class="custom-control-label" for="supplyunlimited">{{#str}}unlimited, tiny_stash{{/str}}</label>
+                <div class="form-check me-sm-2 mb-2">
+                    <input type="checkbox" class="form-check-input" id="supplyunlimited" />
+                    <label class="form-check-label" for="supplyunlimited">{{#str}}unlimited, tiny_stash{{/str}}</label>
                 </div>
             </div>
         </div>
     </div>
-    <div class="form-group">
+    <div class="input-group">
         <div class="form-row align-items-end">
             <div class="col-auto my-1">
                 <label>{{#str}}collectioninterval, tiny_stash{{/str}}</label>
@@ -41,7 +41,7 @@
             </div>
             <div class="col-auto my-1">
                 <label class="sr-only">{{#str}}collectionintervaltime, tiny_stash{{/str}}</label>
-                <select class="form-control custom-select pickupinterval mr-sm-2" disabled>
+                <select class="form-control form-select pickupinterval me-sm-2" disabled>
                     <option value="604800">{{#str}}weeks, tiny_stash{{/str}}</option>
                     <option value="86400">{{#str}}days, tiny_stash{{/str}}</option>
                     <option value="3600" selected>{{#str}}hours, tiny_stash{{/str}}</option>
