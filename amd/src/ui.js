@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ModalFactory from 'core/modal_factory';
+import SaveCancelModal from 'core/modal_save_cancel';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import {getContextId} from 'editor_tiny/options';
@@ -178,9 +178,8 @@ const displayDialogue = async(editor) => {
     data.tradeavailable = (data.trades.length > 0);
     window.console.log(data);
 
-    const modalPromises = await ModalFactory.create({
+    const modalPromises = await SaveCancelModal.create({
         title: getString('modalheading', 'tiny_stash'),
-        type: ModalFactory.types.SAVE_CANCEL,
         body: Templates.render('tiny_stash/drop-code-selector', data),
         large: true,
     });
