@@ -1,6 +1,11 @@
 Tiny Stash
 ===========
 
+Version 1.1.1 (8th June 2026)
+-------------------
+* Modal factory is deprecated, so updated to use the new modal system.
+
+
 Version 1.0.3 (29th February 2024)
 -------------------
 
