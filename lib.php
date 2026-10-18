@@ -26,8 +26,9 @@ function tiny_stash_output_fragment_add_item_form($args) {
     global $CFG;
 
     $args = (object) $args;
-    $courseid = $args->courseid;
-    $context = \context_course::instance($courseid);
+    $courseid = clean_param($args->courseid, PARAM_INT);
+    $context = \context_course::instance($courseid, MUST_EXIST);
+    require_capability('block/stash:addinstance', $context);
 
     $manager = \block_stash\manager::get($courseid);
     $fileareaoptions = ['maxfiles' => 1];
@@ -40,7 +41,6 @@ function tiny_stash_output_fragment_add_item_form($args) {
         'modal' => true,
     ];
 
-    // require_capability('enrol/manual:enrol', $context);
     $mform = new block_stash\form\item(null, $customdata);
     // print_object($mform);
 
@@ -51,7 +51,8 @@ function tiny_stash_output_fragment_add_trade_form($args) {
     global $PAGE;
 
     $args = (object) $args;
-    $courseid = $args->courseid;
+    $courseid = clean_param($args->courseid, PARAM_INT);
+    require_capability('block/stash:addinstance', \context_course::instance($courseid, MUST_EXIST));
 
     $manager = \block_stash\manager::get($courseid);
 
